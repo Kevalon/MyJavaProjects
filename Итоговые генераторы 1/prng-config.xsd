@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="urn:prng-config"
+           targetNamespace="urn:prng-config"
+           elementFormDefault="qualified">
+    <xs:element name="config">
+        <xs:complexType>
+            <xs:choice>
+
+                <!-- Линейный конгруэнтный генератор -->
+                <xs:element name="lc">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+                            <xs:element name="factor" type="xs:nonNegativeInteger"/>
+                            <xs:element name="coefficient" type="xs:nonNegativeInteger"/>
+                            <xs:element name="module" type="xs:positiveInteger"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Аддитивный генератор -->
+                <xs:element name="add">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValues" type="nonNegativeIntegerArray"/>
+                            <xs:element name="factors" type="nonNegativeIntegerArray"/>
+                            <xs:element name="coefficient" type="xs:nonNegativeInteger"/>
+                            <xs:element name="module" type="xs:positiveInteger"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Регистр сдвига с линейной обратной связью -->
+                <xs:element name="lfsr"
+                            type="linearFeedbackShiftRegisterGenerator"/>
+
+                <!-- Нелинейная комбинация регистров сдвига с линейной обратной связью -->
+                <xs:element name="nfsr">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="generators">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="generator"
+                                                    type="linearFeedbackShiftRegister"
+                                                    minOccurs="1"
+                                                    maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="binaryPolynomial">
+                                <xs:simpleType>
+                                    <xs:list itemType="binaryNumber"/>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="outputBitLength" type="xs:unsignedShort"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- RSA -->
+                <xs:element name="rsa">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+                            <xs:element name="exponent" type="xs:positiveInteger"/>
+                            <xs:element name="module" type="xs:positiveInteger"/>
+                            <xs:element name="bitCountPerStep" type="xs:unsignedShort"/>
+                            <xs:element name="outputBitLength" type="xs:unsignedShort"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- BBS -->
+                <xs:element name="bbs">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+                            <xs:element name="module" type="xs:positiveInteger"/>
+                            <xs:element name="outputBitLength" type="xs:unsignedShort"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Вихрь Мерсена -->
+                <xs:element name="mt">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValues" type="nonNegativeIntegerArray"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- RC4 -->
+                <xs:element name="rc4">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="key" type="byteArray"/>
+                            <xs:element name="outputBitLength" type="byteArray"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Пятипараметричный метод -->
+                <xs:element name="fp">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+                            <xs:element name="p" type="xs:unsignedShort"/>
+                            <xs:element name="q1" type="xs:unsignedShort"/>
+                            <xs:element name="q2" type="xs:unsignedShort"/>
+                            <xs:element name="q3" type="xs:unsignedShort"/>
+                            <xs:element name="outputBitLength" type="xs:unsignedShort"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="nonNegativeIntegerArray">
+        <xs:list itemType="xs:nonNegativeInteger"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="unsignedShortArray">
+        <xs:list itemType="xs:unsignedShort"/>
+    </xs:simpleType>
+
+    <xs:complexType name="linearFeedbackShiftRegisterGenerator">
+        <xs:all>
+            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+            <xs:element name="function" type="unsignedShortArray"/>
+            <xs:element name="outputBitLength" type="xs:unsignedShort"/>
+            <xs:element name="initialValueBitLength" type="xs:unsignedShort"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="linearFeedbackShiftRegister">
+        <xs:all>
+            <xs:element name="initialValue" type="xs:nonNegativeInteger"/>
+            <xs:element name="initialValueBitLength" type="xs:unsignedShort"/>
+            <xs:element name="function" type="unsignedShortArray"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:simpleType name="binaryNumber">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[01]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="byteArray">
+        <xs:list itemType="xs:unsignedByte"/>
+    </xs:simpleType>
+
+</xs:schema>

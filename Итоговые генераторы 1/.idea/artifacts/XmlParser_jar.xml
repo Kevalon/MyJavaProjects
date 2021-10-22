@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="XmlParser:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/XmlParser_jar</output-path>
+    <root id="archive" name="XmlParser.jar">
+      <element id="module-output" name="XmlParser" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-lang/commons-lang/2.1/commons-lang-2.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/codehaus/plexus/plexus-utils/1.1/plexus-utils-1.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

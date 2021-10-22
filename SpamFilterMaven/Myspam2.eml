@@ -1,0 +1,64 @@
+Delivered-To: vbifufvf.yjd@mail.ru
+Return-path: <auto@whatsonni.com>
+Authentication-Results: mxs.mail.ru; spf=pass (mx197.i.mail.ru: domain of whatsonni.com designates 85.26.234.189 as permitted sender) smtp.mailfrom=auto@whatsonni.com smtp.helo=mta1.atlasformen.com
+Received-SPF: pass (mx197.i.mail.ru: domain of whatsonni.com designates 85.26.234.189 as permitted sender) client-ip=85.26.234.189; envelope-from=auto@whatsonni.com; helo=mta1.atlasformen.com;
+Received: from [85.26.234.189] (port=36412 helo=mta1.atlasformen.com)
+	by mx197.i.mail.ru with esmtp (envelope-from <auto@whatsonni.com>)
+	id 1ke4XY-00056A-Cr
+	for vbifufvf.yjd@mail.ru; Sun, 15 Nov 2020 02:01:04 +0300
+Received: from mta.directcrm.ru ([130.193.65.109]:58310)
+	by mx195.i.mail.ru with esmtp (envelope-from <noreply@whatsonni.com>)
+	id 95tPcIsMC
+	for vbifufvf.yjd@mail.ru; Sun, 15 Nov 2020 00:44:50 +0200
+Received: by whatsonni.com with HTTP; Sun, 15 Nov 2020 01:01:02 +0200
+Received: (qmail 69088 invoked by uid 524); Sun, 15 Nov 2020 00:44:50 +0200
+X-MSNDR-EXTERNAL-IP: [13.28.44.04]
+Feedback-ID: 307736:50777:sending:notisend
+List-Id: <50777:cpn_128712>
+X-Mailru-Msgtype: 50777:cpn_128712
+X-Postmaster-Msgtype: 50777:cpn_128712
+Date: Sun, 15 Nov 2020 01:01:02 +0200
+From: Потеря доступа. <qnZhDygvF@whatsonni.com>
+To: vbifufvf.yjd@mail.ru vbifufvf.yjd@mail.ru vbifufvf.yjd@mail.ru
+Message-ID: <50777.74810520.mail.ru@whatsonni.com>
+Subject: [0320835-ID пикселя]
+Mime-Version: 1.0
+List-Unsubscribe: <http://service.whatsonni.com/unsubscriptions/2Zy6cM1j19tg3BuWZg4xb55wi89pObP63I5dG2Y8D6oXtrKKq96rgpvG>, <mailto:unsubscribe@abuse.msndr.net?subject=unsubscribe.2Zy6cM1j19tg3BuWZg4xb55wi89pObP63I5dG2Y8D6oXtrKKq96rgpvG>
+Precedence: bulk
+Content-Type: text/PLAIN; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-7564579A: 646B95376F6C166E
+X-77F55803: 0664F0F605133E757DC923BFB360CA5ED065BFE6A7F09A9CB28035B3BF63815EEA0D83F1EF4CA7183F39CA80B806798155FC23BB65DBD5AF
+X-792C5F6F: 2
+X-7FA49CB5: A9FCD207E66530D8A18204E546F3947CBC16316BDCADF6B0E546BADEEE944E86C8A9BA7A39EFB7668A301382846826D5D7494F64F9BEE8B427C277FBC8AE2E8B5B66DD8A7C58C4995136D004FC00FE29EBC0C7FC6B2FC78CAFB8EE5BB20AF1486825BDBE14D8E7024BCCF1D3F5CB6DF366665D3BE1BB5DA03D8403BAB55D8D9FD4F009622155AD9B19AB1C3EEA80A797BC16316BDCADF6B0E546BADEEE944E86D80772577C4BD6258C461D72AA9ED1D0BFD28B28ED4578739E625A9149C048EEAFB8AC9FC77E1A6582BFA309970D60C2B287FD4696A6DC2FA8DF7F3B2552694A4E2F5AFA99E116B42401471946AA11AF269823B5EC1E9D4DA3DED2DACB82E7098F08D7030A58E5AD6BA297DBC24807EA38D433D53B71734578DA827A17800CE786269FE5AA193785C4224003CC8364761F3EBFF1D749F1E07866D6147AF826D8829C7B3A82412AC4EDE3854AE9204E2E117882F4460429724CE54428C33FAD305F5C1EE8F4F765FC2EE5AD8F952D28FBA471835C12D1D9774AD6D5ED66289B524E70A05D1297E1BBF6B57BC7E64490611E7FA7ABCAF51C92176DF2183F8FC7C0D9442B0B5983000E8941B15DA834481F9449624AB7ADAF3743E1E921BD7CC87D
+X-C8649E89: BD54A7169D6420D30AD1987B903A9ED2678FCF50F2DB114EBC49FA551695693B4AC59BB8133D8D02
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr59cQFxbtK52nlS5dXYHM/vGJPPyhnCcOsWxjvstlFwfLDmG3SyZat9J5NbkWIjxq932/b2BQGyWkRn3AgzCpU/iMtBVD51WbvH0GkMdp0FX1bT1+l3DnZJ5vSJ1q3MAIfTHWlXMrmGND
+X-F696D7D5: UC2b7kDEShSZxTzh31q7ClGx519NvyhjkVwMkEuUPYCkt159wl3D5rRFuIOw5Q1i
+X-Magic: A2BBA6E1549E1F576C9AA899A599FC40B37988A08633A2AA13AA59B07260BFC889083FE16ECB555184E8C37DED16355AC1E98E84695C9F4B
+X-Mras: PROBABLE_SPAM
+X-Spam: undefined
+X-Mailru-Intl-Transport: d,1d53477
+
+3дрaвcтвуйте!
+У меня для Вас неприятные новости.
+Уже довольно давно я подключился к Вашему устрoйсвту, через который вы посещаете интернет и все это время наблюдаю за вами. 
+В общем-то сайты с порнаграфіей, которые вы посещаете и стали ключом к вашим данным.
+Я залил специальную программу, которая каждые несколько часов обновляет свои сигнатуры, чтобы anti вірусные программы не могли его распознать.
+Она дает мне возможность подключиться к вашим камере и микрофону. Кроме того, у меня есть все копии данных, включая фотографии, социальные сети, переписки и контакты.,
+Недавно у меня возникла отличная идея: Я смотрировал ваше homevideo, в котором видно как вы  ,так сказать, "делаете себе хорошо" в левой часті монитора, а справа та порнаграфія, которую вы смотрелі. Получилось очень занятно!
+Я бы мог послать этот шедевр по всем вашим контактам сделав всего пару кликов мыши. Уверен, Вас такой расклад не очень устраивает.
+
+Поэтому вот вам моё предложение - 699$ вы переводите на мой біткоин счёт, я в свою очередь удаляю все записи и мы забываем друг о друге навсегда.
+Поверьте, это очень скромная цифра за мои труды.
+Если вы не знаете как пополнить кошелёк біткиона просто воспользуйтесь гуглом или яндексом.
+Номер моего біткоин кошелька: 14zwPKScDwafbGF9Ki45SeWS6iZ73wzABj
+
+У вас двое суток на перевод. Этого времени вполне достаточно.
+В письме был встроен пиксель, который начнёт отсчёт времени, после того как Вы открыли письмо и я буду знать сколько у Вас осталось
+Писать в ответ не стоит, так как обратного адреса не существует, он состоит из рандомных данных.
+Жаловаться куда либо тоже плохая идея. Если я увижу, что Вы кому то показали это пиьсмо - ролик будет автоматически отправлен.
+Удачи и не держите зла. У каждого своя работа.
+
+whatsonni.com
+
+

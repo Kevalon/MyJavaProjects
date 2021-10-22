@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:prng-config prng-config.xsd"
+        xmlns="urn:prng-config">
+    <bbs>
+        <initialValue>97</initialValue>
+        <outputBitLength>10</outputBitLength>
+        <module>437</module>
+    </bbs>
+</config>

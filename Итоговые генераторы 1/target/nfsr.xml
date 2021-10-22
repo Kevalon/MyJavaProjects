@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:prng-config prng-config.xsd"
+        xmlns="urn:prng-config">
+
+    <nfsr>
+        <generators>
+            <generator>
+                <initialValue>9</initialValue>
+                <initialValueBitLength>5</initialValueBitLength>
+                <function>1 2 5</function>
+            </generator>
+            <generator>
+                <initialValue>233</initialValue>
+                <initialValueBitLength>9</initialValueBitLength>
+                <function>1 5 7 9</function>
+            </generator>
+        </generators>
+        <binaryPolynomial>10 01 00</binaryPolynomial>
+        <outputBitLength>10</outputBitLength>
+    </nfsr>
+
+</config>

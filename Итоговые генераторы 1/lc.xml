@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:prng-config prng-config.xsd"
+        xmlns="urn:prng-config">
+    <lc>
+        <factor>3</factor>
+        <coefficient>10</coefficient>
+        <module>64</module>
+        <initialValue>1</initialValue>
+    </lc>
+</config>

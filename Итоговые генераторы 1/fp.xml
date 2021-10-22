@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="urn:prng-config prng-config.xsd"
+        xmlns="urn:prng-config">
+    <fp>
+        <initialValue>12</initialValue>
+        <p>8</p>
+        <q1>1</q1>
+        <q2>3</q2>
+        <q3>7</q3>
+        <outputBitLength>5</outputBitLength>
+    </fp>
+</config>
