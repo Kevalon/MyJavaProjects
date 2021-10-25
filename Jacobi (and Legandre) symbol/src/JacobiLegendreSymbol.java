@@ -1,17 +1,9 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
-public class Main {
+public class JacobiLegendreSymbol {
 
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
-        int a, n;
+    public static int getSymbol(int a, int n) {
         ArrayList<Integer> as = new ArrayList<>();
-
-        System.out.print("a = ");
-        a = in.nextInt();
-        System.out.print("n = ");
-        n = in.nextInt();
         int n1 = n;
         int a1 = a;
 
@@ -22,15 +14,13 @@ public class Main {
         }
 
         if (n % a1 == 0 && a1 != 1) {
-            System.out.println("(" + a + "/" + n + ") = 0");
-            return;
+            return 0;
         }
 
         while (true) {
             a1 %= n1;
             if (a1 == 0) {
-                System.out.println("(" + a + "/" + n + ") = 0");
-                return;
+                return 0;
             }
 
 
@@ -52,8 +42,7 @@ public class Main {
                 break;
 
             if (n1 % a1 == 0) {
-                System.out.println("(" + a + "/" + n + ") = 0");
-                return;
+                return 0;
             }
 
             int tmp = ((a1 - 1) / 2) * ((n1 - 1) / 2);
@@ -67,7 +56,7 @@ public class Main {
         for (int el : as) {
             res *= el;
         }
-        System.out.println("(" + a + "/" + n + ") = " + res);
+        return res;
     }
 }
 
