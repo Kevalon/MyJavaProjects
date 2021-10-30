@@ -111,7 +111,8 @@ public class Main {
         while (count.compareTo(BigInteger.ZERO) > 0) {
             BigInteger check = x2.subtract(x1).mod(p);
             if (check.mod(p).equals(BigInteger.ZERO)) {
-                return count.compareTo(BigInteger.ONE) <= 0;
+                //return count.equals(BigInteger.ONE);
+                return true;
             }
 
             lambda = y2.subtract(y1).mod(p);
@@ -121,7 +122,7 @@ public class Main {
 
             count = count.subtract(BigInteger.ONE);
         }
-        
+
         return false;
     }
 
@@ -217,8 +218,9 @@ public class Main {
 
             N = p.add(BigInteger.ONE);
             r = BigInteger.ZERO;
+            boolean candidate = false;
             BigInteger[] T = { ab[0].multiply(BigInteger.TWO).mod(p), ab[1].multiply(BigInteger.TWO).mod(p),
-                    ab[0].multiply(BigInteger.TWO).negate(), ab[1].multiply(BigInteger.TWO).negate() };
+                    ab[0].multiply(BigInteger.TWO).negate().mod(p), ab[1].multiply(BigInteger.TWO).negate().mod(p) };
             for (int i = 0; i < 4; i++) {
                 BigInteger Ntmp = N.add(T[i]).mod(p);
 
@@ -226,29 +228,36 @@ public class Main {
                     r = Ntmp.divide(BigInteger.TWO);
                     if (MillerRabinTest.test(r, 14)) {
                         N = Ntmp;
+                        candidate = true;
                         break;
                     }
-                    if (r.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-                        r = r.divide(BigInteger.TWO);
-                        if (MillerRabinTest.test(r, 14)) {
-                            N = Ntmp;
-                            break;
-                        }
+                }
+
+                if (Ntmp.mod(BigInteger.valueOf(4)).equals(BigInteger.ZERO)) {
+                    r = Ntmp.divide(BigInteger.valueOf(4));
+                    if (MillerRabinTest.test(r, 14)) {
+                        N = Ntmp;
+                        candidate = true;
+                        break;
                     }
                 }
             }
 
-            if (p.equals(r) || r.equals(BigInteger.ZERO)) {
-                r = BigInteger.ZERO;
-                continue;
-            }
-
-            for (int i = 1; i <= m; i++) {
-                if (p.modPow(BigInteger.valueOf(i), r).equals(BigInteger.ONE)) {
+            if (candidate) {
+                if (p.equals(r)) {
                     r = BigInteger.ZERO;
-                    break;
+                    continue;
+                }
+
+                for (int i = 1; i <= m; i++) {
+                    if (p.modPow(BigInteger.valueOf(i), r).equals(BigInteger.ONE)) {
+                        r = BigInteger.ZERO;
+                        break;
+                    }
                 }
             }
+            else r = BigInteger.ZERO;
+
         } while (r.equals(BigInteger.ZERO));
 
         System.out.println("p = " + p.toString());
@@ -289,12 +298,13 @@ public class Main {
 
         System.out.println("\nОтвет:");
         System.out.println("(p=" + p.toString() +", A=" + A.toString() +", Q=(" + Q[0].toString()
-        + ", " + Q[1].toString() + "), r=" + r.toString() + ").");
+                + ", " + Q[1].toString() + "), r=" + r.toString() + ").");
 
 
         Qx.add(Q[0].doubleValue() / p.longValue());
         Qy.add(Q[1].doubleValue() / p.longValue());
         getQ(N, Q[0], Q[1], A, p);
+        System.out.println(Qx.size());
         Graphic g = new Graphic(Qx, Qy);
         g.setVisible(true);
     }
