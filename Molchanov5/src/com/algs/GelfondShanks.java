@@ -11,7 +11,7 @@ import java.util.List;
 public abstract class GelfondShanks {
     private static List<BigInteger[]> getPairs(BigInteger a, BigInteger r, BigInteger m) {
         List<BigInteger[]> res = new ArrayList<>();
-        for (BigInteger i = BigInteger.ONE; i.compareTo(r) < 0; i = i.add(BigInteger.ONE)) {
+        for (BigInteger i = BigInteger.ZERO; i.compareTo(r) < 0; i = i.add(BigInteger.ONE)) {
             BigInteger[] tmp = new BigInteger[2];
             tmp[0] = i;
             tmp[1] = a.modPow(i, m);

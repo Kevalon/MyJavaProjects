@@ -16,13 +16,13 @@ public class Main {
         int response;
         Scanner in = new Scanner(System.in);
 
-//        Set<BigInteger> set = new HashSet<>();
-//        for (int i = 1; i < 127; i++) {
-//            BigInteger res = BigInteger.valueOf(3).modPow(BigInteger.valueOf(i), BigInteger.valueOf(127));
-//            set.add(res);
-//            System.out.println(i + ": " + res.toString());
-//        }
-//        System.out.println(set.size());
+        Set<BigInteger> set = new HashSet<>();
+        for (int i = 0; i < 17; i++) {
+            BigInteger res = BigInteger.valueOf(3).modPow(BigInteger.valueOf(i), BigInteger.valueOf(17));
+            set.add(res);
+            System.out.println(i + ": " + res.toString());
+        }
+        System.out.println(set.size());
 
         response = in.nextInt();
         System.out.println("Введите количество элементов в группе");

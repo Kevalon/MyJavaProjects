@@ -61,7 +61,7 @@ public abstract class RoMethod {
         while (true) {
             BigInteger i = BigInteger.ONE;
             s = s.add(BigInteger.ONE);
-            System.out.println(s.toString());
+            //System.out.println(s.toString());
             triplets.clear();
 
             BigInteger[] y0 = new BigInteger[] {a.modPow(s, m), s, BigInteger.ZERO};

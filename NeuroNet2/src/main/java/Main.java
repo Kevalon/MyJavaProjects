@@ -53,13 +53,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        /*if (args.length != 2) {
+        if (args.length != 2) {
             System.out.println("Неверное количество входных аргументов.");
             return;
-        }*/
+        }
 
-        String path = "test3.txt";
-        String outputpath = "result.txt";
+        String path = args[0];
+        String outputpath = args[1];
 
         File input = new File(path);
         if (!input.exists() || input.isDirectory()) {

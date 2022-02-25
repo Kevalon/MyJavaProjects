@@ -1,0 +1,173 @@
+2022-02-25 12:00:41.423 Server: FTP server started on port 21
+2022-02-25 12:00:49.165 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:00:49.174 Server: 220. Connection Established. Welcome
+2022-02-25 12:00:49.177 Server: Please Log in.
+2022-02-25 12:00:51.316 Client: USER sd
+2022-02-25 12:00:51.317 Server: 331. Input password
+2022-02-25 12:00:52.322 Client: PASS sd
+2022-02-25 12:00:52.323 Server: 430. Invalid username or password.
+2022-02-25 12:00:54.59 Client: USER sd
+2022-02-25 12:00:54.591 Server: 331. Input password
+2022-02-25 12:00:55.098 Client: PASS sd
+2022-02-25 12:00:55.101 Server: 230. Login successful.
+2022-02-25 12:05:44.552 Client: EPRT |2|::1|56708|
+2022-02-25 12:05:44.557 Server: 250. Command OK
+2022-02-25 12:05:44.56 Client: STOR test.txt
+2022-02-25 12:05:44.561 Server: 150. Opening data connection for requested file test.txt
+2022-02-25 12:05:44.562 Server: 226. File transfer successful. Closing data connection.
+2022-02-25 12:06:04.956 Client: EPRT |2|::1|49672|
+2022-02-25 12:06:04.957 Server: 250. Command OK
+2022-02-25 12:06:04.965 Client: LIST
+2022-02-25 12:06:04.965 Server: 125. Data Transfer started.
+2022-02-25 12:06:04.968 Server: sd\test
+2022-02-25 12:06:04.969 Server: sd\test.txt
+2022-02-25 12:06:04.969 Server: ..
+2022-02-25 12:06:04.97 Server: 226. File Transfer is successful.
+2022-02-25 12:06:11.848 Client: EPRT |2|::1|49675|
+2022-02-25 12:06:11.849 Server: 250. Command OK
+2022-02-25 12:06:11.855 Client: RETR test.txt
+2022-02-25 12:06:11.857 Server: 202. Unknown Command
+2022-02-25 12:11:10.482 Client: DELE d
+2022-02-25 12:11:10.483 Server: 202. Unknown Command
+2022-02-25 12:20:42.858 Server: FTP server started on port 21
+2022-02-25 12:21:15.071 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:21:15.073 Server: 220. Connection Established. Welcome
+2022-02-25 12:21:15.078 Server: Please Log in.
+2022-02-25 12:21:16.232 Client: USER sd
+2022-02-25 12:21:16.233 Server: 331. Input password
+2022-02-25 12:21:16.73 Client: PASS sd
+2022-02-25 12:21:16.731 Server: 430. Invalid username or password.
+2022-02-25 12:21:19.283 Client: USER sd
+2022-02-25 12:21:19.284 Server: 331. Input password
+2022-02-25 12:21:19.593 Client: PASS sd
+2022-02-25 12:21:19.596 Server: 230. Login successful.
+2022-02-25 12:21:21.177 Client: EPRT |2|::1|62407|
+2022-02-25 12:21:21.18 Server: 250. Command OK
+2022-02-25 12:21:21.182 Client: LIST
+2022-02-25 12:21:21.183 Server: 125. Data Transfer started.
+2022-02-25 12:21:21.186 Server: sd\test
+2022-02-25 12:21:21.187 Server: sd\test.txt
+2022-02-25 12:21:21.187 Server: ..
+2022-02-25 12:21:21.188 Server: 226. File Transfer is successful.
+2022-02-25 12:21:27.777 Client: EPRT |2|::1|62409|
+2022-02-25 12:21:27.779 Server: 250. Command OK
+2022-02-25 12:21:27.784 Client: RETR test.txt
+2022-02-25 12:21:27.785 Server: 550. File already exists
+2022-02-25 12:21:57.804 Client: EPRT |2|::1|62428|
+2022-02-25 12:21:57.807 Server: 250. Command OK
+2022-02-25 12:21:57.811 Client: RETR test.txt
+2022-02-25 12:21:57.812 Server: 550. File already exists
+2022-02-25 12:22:18.475 Client: QUIT
+2022-02-25 12:22:18.476 Server: 221. Closing Connection
+2022-02-25 12:22:18.477 Server: FTP server started on port 21
+2022-02-25 12:22:32.428 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:22:32.428 Server: 220. Connection Established. Welcome
+2022-02-25 12:22:32.432 Server: Please Log in.
+2022-02-25 12:22:34.555 Client: USER sd
+2022-02-25 12:22:34.556 Server: 331. Input password
+2022-02-25 12:22:35.389 Client: PASS sd
+2022-02-25 12:22:35.389 Server: 230. Login successful.
+2022-02-25 12:22:36.782 Client: EPRT |2|::1|62116|
+2022-02-25 12:22:36.784 Server: 250. Command OK
+2022-02-25 12:22:36.785 Client: LIST
+2022-02-25 12:22:36.785 Server: 125. Data Transfer started.
+2022-02-25 12:22:36.786 Server: sd\test
+2022-02-25 12:22:36.786 Server: sd\test.txt
+2022-02-25 12:22:36.787 Server: ..
+2022-02-25 12:22:36.787 Server: 226. File Transfer is successful.
+2022-02-25 12:22:40.011 Client: EPRT |2|::1|62119|
+2022-02-25 12:22:40.013 Server: 250. Command OK
+2022-02-25 12:22:40.019 Client: RETR test.txt
+2022-02-25 12:22:40.019 Server: 550. File already exists
+2022-02-25 12:23:42.921 Server: FTP server started on port 21
+2022-02-25 12:23:47.718 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:23:47.72 Server: 220. Connection Established. Welcome
+2022-02-25 12:23:47.725 Server: Please Log in.
+2022-02-25 12:23:50.062 Client: USER sd
+2022-02-25 12:23:50.062 Server: 331. Input password
+2022-02-25 12:23:50.376 Client: PASS sd
+2022-02-25 12:23:50.379 Server: 230. Login successful.
+2022-02-25 12:23:51.851 Client: EPRT |2|::1|54966|
+2022-02-25 12:23:51.853 Server: 250. Command OK
+2022-02-25 12:23:51.859 Client: LIST
+2022-02-25 12:23:51.859 Server: 125. Data Transfer started.
+2022-02-25 12:23:51.862 Server: sd\test
+2022-02-25 12:23:51.862 Server: sd\test.txt
+2022-02-25 12:23:51.863 Server: ..
+2022-02-25 12:23:51.863 Server: 226. File Transfer is successful.
+2022-02-25 12:23:54.703 Client: EPRT |2|::1|54968|
+2022-02-25 12:23:54.704 Server: 250. Command OK
+2022-02-25 12:23:54.709 Client: RETR test.txt
+2022-02-25 12:23:54.71 Server: 150. Opening data connection for requested file test.txt
+2022-02-25 12:23:54.711 Server: 226. File transfer successful. Closing data connection.
+2022-02-25 12:24:18.664 Client: EPRT |2|::1|61251|
+2022-02-25 12:24:18.665 Server: 250. Command OK
+2022-02-25 12:24:18.671 Client: RETR test.txt
+2022-02-25 12:24:18.672 Server: 150. Opening data connection for requested file test.txt
+2022-02-25 12:24:18.672 Server: 226. File transfer successful. Closing data connection.
+2022-02-25 12:25:51.295 Server: FTP server started on port 21
+2022-02-25 12:26:04.086 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:26:04.09 Server: 220. Connection Established. Welcome
+2022-02-25 12:26:04.096 Server: Please Log in.
+2022-02-25 12:26:05.262 Client: USER sd
+2022-02-25 12:26:05.263 Server: 331. Input password
+2022-02-25 12:26:05.968 Client: PASS sd
+2022-02-25 12:26:05.97 Server: 430. Invalid username or password.
+2022-02-25 12:26:08.793 Client: USER sd
+2022-02-25 12:26:08.794 Server: 331. Input password
+2022-02-25 12:26:09.134 Client: PASS sd
+2022-02-25 12:26:09.137 Server: 230. Login successful.
+2022-02-25 12:26:10.598 Client: EPRT |2|::1|50889|
+2022-02-25 12:26:10.6 Server: 250. Command OK
+2022-02-25 12:26:10.603 Client: LIST
+2022-02-25 12:26:10.604 Server: 125. Data Transfer started.
+2022-02-25 12:26:10.608 Server: sd\test
+2022-02-25 12:26:10.608 Server: sd\test.txt
+2022-02-25 12:26:10.609 Server: ..
+2022-02-25 12:26:10.609 Server: 226. File Transfer is successful.
+2022-02-25 12:26:19.751 Client: DELE test.txt
+2022-02-25 12:26:19.752 Server: 502. Unknown error has occurred
+2022-02-25 12:27:41.071 Client: EPRT |2|::1|56293|
+2022-02-25 12:27:41.073 Server: 250. Command OK
+2022-02-25 12:27:41.076 Client: STOR test.txt
+2022-02-25 12:27:41.077 Server: 550. File already exists
+2022-02-25 12:28:12.115 Client: EPRT |2|::1|56315|
+2022-02-25 12:28:12.117 Server: 250. Command OK
+2022-02-25 12:28:12.12 Client: STOR test.txt
+2022-02-25 12:28:12.121 Server: 550. File already exists
+2022-02-25 12:28:13.37 Client: EPRT |2|::1|56317|
+2022-02-25 12:28:13.371 Server: 250. Command OK
+2022-02-25 12:28:13.375 Client: STOR file1.txt
+2022-02-25 12:28:13.376 Server: 150. Opening data connection for requested file file1.txt
+2022-02-25 12:28:13.377 Server: 226. File transfer successful. Closing data connection.
+2022-02-25 12:28:43.358 Client: XPWD
+2022-02-25 12:28:43.359 Server: 202. Unknown Command
+2022-02-25 12:31:15.639 Server: FTP server started on port 21
+2022-02-25 12:31:40.005 Server: connection established with /0:0:0:0:0:0:0:1
+2022-02-25 12:31:40.007 Server: 220. Connection Established. Welcome
+2022-02-25 12:31:40.011 Server: Please Log in.
+2022-02-25 12:31:41.835 Client: USER sd
+2022-02-25 12:31:41.836 Server: 331. Input password
+2022-02-25 12:31:42.224 Client: PASS sd
+2022-02-25 12:31:42.227 Server: 230. Login successful.
+2022-02-25 12:31:43.852 Client: EPRT |2|::1|63656|
+2022-02-25 12:31:43.854 Server: 250. Command OK
+2022-02-25 12:31:43.858 Client: LIST
+2022-02-25 12:31:43.858 Server: 125. Data Transfer started.
+2022-02-25 12:31:43.861 Server: sd\file1.txt
+2022-02-25 12:31:43.862 Server: sd\test
+2022-02-25 12:31:43.862 Server: sd\test.txt
+2022-02-25 12:31:43.862 Server: ..
+2022-02-25 12:31:43.863 Server: 226. File Transfer is successful.
+2022-02-25 12:31:46.084 Client: XPWD
+2022-02-25 12:31:46.085 Server: 250. .\src\main\resources\sd\
+2022-02-25 12:32:20.192 Client: EPRT |2|::1|63664|
+2022-02-25 12:32:20.193 Server: 250. Command OK
+2022-02-25 12:32:20.196 Client: RETR test.txt
+2022-02-25 12:32:20.198 Server: 150. Opening data connection for requested file test.txt
+2022-02-25 12:32:20.199 Server: 226. File transfer successful. Closing data connection.
+2022-02-25 12:33:05.844 Client: RNFR test.txt
+2022-02-25 12:33:05.846 Server: 202. Unknown Command
+2022-02-25 12:33:40.811 Client: QUIT
+2022-02-25 12:33:40.812 Server: 221. Closing Connection
+2022-02-25 12:33:40.812 Server: FTP server started on port 21
