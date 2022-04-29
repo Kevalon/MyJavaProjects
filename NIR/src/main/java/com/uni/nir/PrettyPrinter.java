@@ -47,7 +47,6 @@ public class PrettyPrinter {
                 }
                 line.append(square).append("|");
             }
-            //line.deleteCharAt(line.length() - 1);
             System.out.println(line);
         }
     }

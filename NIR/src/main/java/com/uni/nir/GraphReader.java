@@ -80,13 +80,12 @@ import lombok.Getter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Getter
 public class GraphReader {
     private final Scanner graphIn;
-    private int vertexAmount;
+    private final int vertexAmount;
 
     public GraphReader(Path graphFolder, int vertexAmount) throws IOException {
         this.vertexAmount = vertexAmount;

@@ -2,6 +2,7 @@ package com.uni.nir;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -11,7 +12,7 @@ public class Worker {
     private final Path graphFolder;
     private final int vertexAmount;
     private final long[][] table;
-    private boolean done = false;
+    private final int threadCount = 8;
 
     public Worker(Path graphFolder, int vertexAmount) {
         this.graphFolder = graphFolder;
@@ -28,8 +29,8 @@ public class Worker {
             }
         });
         producerThread.start();
-        Thread[] consumerThreads = new Thread[8];
-        for (int i = 0; i < 8; i++) {
+        Thread[] consumerThreads = new Thread[threadCount];
+        for (int i = 0; i < threadCount; i++) {
             consumerThreads[i] = new Thread(this::consume);
             consumerThreads[i].start();
         }
@@ -58,25 +59,33 @@ public class Worker {
                 break;
             }
         }
-        done = true;
+        System.out.println("I'm dead");
+        for (int i = 0; i < threadCount; i++) {
+            try {
+                blockingQueue.put(new ArrayList<>());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void consume() {
         InvariantCalculator invariantCalculator = new InvariantCalculator();
         List<List<Integer>> value;
         while (true) {
-            if (blockingQueue.isEmpty() && done) break;
             try {
                 value = blockingQueue.take();
             } catch (InterruptedException e) {
                 break;
             }
+            if (value.size() < 1) break;
             // Consume value
             invariantCalculator.setGraph(value);
             invariantCalculator.findBridgesAmount();
             invariantCalculator.findIndependentSet();
             updateTable(invariantCalculator.getLastBridgesAmount(), invariantCalculator.getLastIndependentSetSize());
         }
+        System.out.println(Thread.currentThread().getName() + " is done!");
     }
 
     synchronized void updateTable(int bridges, int setSize) {
