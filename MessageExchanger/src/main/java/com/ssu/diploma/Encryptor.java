@@ -1,10 +1,11 @@
 package com.ssu.diploma;
 
-import java.io.File;
 import javax.crypto.Cipher;
 
 public interface Encryptor {
-    void generateKey() throws Exception;
+    byte[] generateKey() throws Exception;
+
+    byte[] generateIV() throws Exception;
 
     Cipher init(byte[] key, boolean encrypt) throws Exception;
 

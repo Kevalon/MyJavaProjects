@@ -25,11 +25,11 @@ public class EncryptorImpl implements Encryptor {
 
     private static final Path KEY_PATH = Path.of("./src/main/resources/key.txt");
     private static final Path IV_PATH = Path.of("./src/main/resources/IV.txt");
-    private static final int KEY_LENGTH = 256;
+    public static final int KEY_LENGTH = 256;
     //    "AES" or "GOST3412-2015"
-    private final String systemName;
-    private final byte pIVLen = 8;
-    private final int buffSize = 8 * 1024;
+    public final String systemName;
+    public static final byte pIVLen = 8;
+    public final int buffSize = 8 * 1024;
 
     static {
         Security.setProperty("crypto.policy", "unlimited");
@@ -41,17 +41,20 @@ public class EncryptorImpl implements Encryptor {
     }
 
     @Override
-    public void generateKey() throws NoSuchAlgorithmException, IOException,
+    public byte[] generateKey() throws NoSuchAlgorithmException, IOException,
             NoSuchProviderException {
         KeyGenerator keyGen = KeyGenerator.getInstance(systemName, "BC");
         keyGen.init(KEY_LENGTH);
         SecretKey key = keyGen.generateKey();
-        byte[] byteKey = key.getEncoded();
-        Files.write(KEY_PATH, byteKey);
+//        Files.write(KEY_PATH, byteKey);
+        return key.getEncoded();
+    }
 
+    @Override
+    public byte[] generateIV() {
         byte[] IV = new byte[pIVLen];
         CryptoServicesRegistrar.getSecureRandom().nextBytes(IV);
-        Files.write(IV_PATH, IV);
+        return IV;
     }
 
     @Override
