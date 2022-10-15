@@ -2,10 +2,7 @@ package com.ssu.diploma.swing;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.ButtonGroup;
@@ -31,7 +28,7 @@ public class SenderForm extends javax.swing.JFrame {
 
     private final String[] modes =
             {"Нагрузочное тестирование", "Стресс-тестирование", "Бесконечная отправка"};
-    private final SettingsForm settingsForm = new SettingsForm();
+    private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
 
     /*
     TODO:
@@ -71,7 +68,7 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         settingsButton.addActionListener(e -> {
-            settingsForm.init();
+            senderSettingsForm.init();
         });
 
         openFileButton.addActionListener(e -> {

@@ -25,7 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import lombok.Getter;
 
-public class SettingsForm extends javax.swing.JFrame {
+public class SenderSettingsForm extends javax.swing.JFrame {
     private JPanel settingsPanel;
     private JTextField receiverAddressTextField;
     private JTextField receiverPortTextField;
@@ -54,7 +54,7 @@ public class SettingsForm extends javax.swing.JFrame {
 
     //TODO: разобраться с подписью jar файлов и BC
 
-    public SettingsForm() {
+    public SenderSettingsForm() {
         cipherSystemComboBox.setModel(new DefaultComboBoxModel(SUPPORTED_CIPHERS));
 
         settings.put("receiverAddress", "localhost");
@@ -166,7 +166,7 @@ public class SettingsForm extends javax.swing.JFrame {
         JFileChooser dirFileChooser = new JFileChooser();
         dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         dirFileChooser.setDialogTitle("Выбор директории");
-        int res = dirFileChooser.showOpenDialog(SettingsForm.this);
+        int res = dirFileChooser.showOpenDialog(SenderSettingsForm.this);
         if (res == 0) {
             File file = dirFileChooser.getSelectedFile();
             if (file.exists() && file.isDirectory()) {
@@ -182,7 +182,7 @@ public class SettingsForm extends javax.swing.JFrame {
     private void browseFileAction(JTextField destination) {
         JFileChooser fileFileChooser = new JFileChooser();
         fileFileChooser.setDialogTitle("Выбор файла");
-        int res = fileFileChooser.showOpenDialog(SettingsForm.this);
+        int res = fileFileChooser.showOpenDialog(SenderSettingsForm.this);
         if (res == 0) {
             File file = fileFileChooser.getSelectedFile();
             if (file.exists() && file.isFile()) {
