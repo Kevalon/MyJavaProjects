@@ -64,7 +64,6 @@ public class Interface extends javax.swing.JFrame {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int res = in.showOpenDialog(Interface.this);
-                    Interface anInterface = Interface.this;
                     if (res == 0) {
                         File file = in.getSelectedFile();
                         if (file.exists() && file.isFile())

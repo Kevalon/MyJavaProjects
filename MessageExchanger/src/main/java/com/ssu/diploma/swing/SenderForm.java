@@ -2,6 +2,7 @@ package com.ssu.diploma.swing;
 
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,8 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 
-public class SenderForm {
-    private JFrame f;
+public class SenderForm extends javax.swing.JFrame {
     private JPanel senderPanel;
     private JTextArea logConsole;
     private JButton startButton;
@@ -29,7 +29,8 @@ public class SenderForm {
     private JRadioButton EndToEndRadio;
     private JComboBox modeComboBox;
 
-    private final String[] modes = {"Нагрузочное тестирование", "Стресс-тестирование", "Бесконечная отправка"};
+    private final String[] modes =
+            {"Нагрузочное тестирование", "Стресс-тестирование", "Бесконечная отправка"};
     private final SettingsForm settingsForm = new SettingsForm();
 
     /*
@@ -42,18 +43,7 @@ public class SenderForm {
 
 
     public SenderForm() {
-        f = new JFrame();
-        f.add(senderPanel);
-        f.setSize(800, 500);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension screenSize = toolkit.getScreenSize();
-        int x = (screenSize.width - f.getWidth()) / 2;
-        int y = (screenSize.height - f.getHeight()) / 2;
-
-        f.setLocation(x, y);
-        f.setVisible(true);
+        this.add(senderPanel);
 
         modeComboBox.setModel(new DefaultComboBoxModel(modes));
 
@@ -94,5 +84,16 @@ public class SenderForm {
                 JOptionPane.showMessageDialog(null, "Файл не найден.");
             }
         });
+
+        this.setSize(800, 500);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension screenSize = toolkit.getScreenSize();
+        int x = (screenSize.width - this.getWidth()) / 2;
+        int y = (screenSize.height - this.getHeight()) / 2;
+
+        this.setLocation(x, y);
+        this.setVisible(true);
     }
 }

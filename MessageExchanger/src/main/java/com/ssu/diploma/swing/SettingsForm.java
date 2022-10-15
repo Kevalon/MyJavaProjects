@@ -3,11 +3,11 @@ package com.ssu.diploma.swing;
 import com.ssu.diploma.EncryptorImpl;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +26,6 @@ import javax.swing.JTextField;
 import lombok.Getter;
 
 public class SettingsForm extends javax.swing.JFrame {
-    private JFrame f;
     private JPanel settingsPanel;
     private JTextField receiverAddressTextField;
     private JTextField receiverPortTextField;
@@ -44,61 +43,35 @@ public class SettingsForm extends javax.swing.JFrame {
     private JTextField IVPathTextField;
     private JButton choosePathButton4;
 
-    private final JFileChooser in;
     private static final String[] SUPPORTED_CIPHERS = {"AES", "ГОСТ Р 34.12-2015 (Кузнечик)"};
-    private static final String DEFAULT_KEY_LOCATION
-            = "C:\\Users\\vbifu\\MyJavaProjects\\MessageExchanger\\src\\main\\resources\\key.txt";
+    private static final URL DEFAULT_KEY_LOCATION
+            = ClassLoader.getSystemResource("key.txt");
+    private static final URL DEFAULT_IV_LOCATION
+            = ClassLoader.getSystemResource("IV.txt");
 
     @Getter
     private final Map<String, String> settings = new HashMap<>();
 
-    /*
-    TODO:
-     6) Генерация по кнопке нач вектора
-     7) Продумать дефолтное расположение для закомменченных настроек и заменить дефолтный путь
-     для генерации ключа.
-     */
+    //TODO: разобраться с подписью jar файлов и BC
 
     public SettingsForm() {
-        in = new JFileChooser();
-        in.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        in.setDialogTitle("Выбор директории");
-
         cipherSystemComboBox.setModel(new DefaultComboBoxModel(SUPPORTED_CIPHERS));
 
         settings.put("receiverAddress", "localhost");
         settings.put("receiverPort", "8081");
-//        settings.put("testFilesDirectory", testFilesDirectoryTextField.getText());
-//        settings.put("reportsDirectory", reportsDirectoryTextField.getText());
         settings.put("cipherSystem", "AES");
-        settings.put("keyPath", DEFAULT_KEY_LOCATION);
+        settings.put("keyPath", DEFAULT_KEY_LOCATION.toString());
+        settings.put("IVPath", DEFAULT_IV_LOCATION.toString());
 
-        choosePathButton1.addActionListener(e -> {browseDirAction(testFilesDirectoryTextField);});
-
-        choosePathButton2.addActionListener(e -> {browseDirAction(reportsDirectoryTextField);});
-
-        choosePathButton3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setDialogTitle("выбор файла");
-                int res = fileChooser.showOpenDialog(SettingsForm.this);
-                if (res == 0) {
-                    File file = fileChooser.getSelectedFile();
-                    if (file.exists() && file.isFile())
-                        keyPathTextField.setText(file.getAbsolutePath());
-                    else {
-                        JOptionPane.showMessageDialog(null,
-                                "Директория не найдена.");
-                        actionPerformed(e);
-                    }
-                }
-            }
-        });
-
-        choosePathButton4.addActionListener(e -> browseDirAction(IVPathTextField));
+        choosePathButton1.addActionListener(e -> browseDirAction(testFilesDirectoryTextField));
+        choosePathButton2.addActionListener(e -> browseDirAction(reportsDirectoryTextField));
+        choosePathButton3.addActionListener(e -> browseFileAction(keyPathTextField));
+        choosePathButton4.addActionListener(e -> browseFileAction(IVPathTextField));
 
         generateNewKeyButton.addActionListener(e -> {
+            browseDirAction(keyPathTextField);
+            keyPathTextField.setText(keyPathTextField.getText() + "\\key.txt");
+
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
             try {
@@ -112,7 +85,17 @@ public class SettingsForm extends javax.swing.JFrame {
         });
 
         generateNewIVButton.addActionListener(e -> {
+            browseDirAction(IVPathTextField);
+            keyPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
 
+            EncryptorImpl encryptor
+                    = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
+            try {
+                byte[] IV = encryptor.generateIV();
+                Files.write(Path.of(IVPathTextField.getText()), IV);
+            } catch (IOException ex) {
+                errorLogConsole.append("Не удалось найти указанный для генерации путь.\n");
+            }
         });
 
         applyButton.addActionListener(e -> {
@@ -125,16 +108,50 @@ public class SettingsForm extends javax.swing.JFrame {
 
             if (!keyPathTextField.getText().equals("")) {
                 try {
-                    if (Files.size(Path.of(keyPathTextField.getText()))
-                            != EncryptorImpl.KEY_LENGTH / 8) {
-                        errorLogConsole.append(String.format("Файл ключа имеет некорректную длину. " +
-                                "Ключ должен быть = %d битам\n", EncryptorImpl.KEY_LENGTH));
+                    long size;
+                    try {
+                        size = getBytesFromURL(new URL(keyPathTextField.getText())).length;
+                    } catch (MalformedURLException exception) {
+                        size = Files.size(Path.of(keyPathTextField.getText()));
+                    }
+
+                    if (size != EncryptorImpl.KEY_LENGTH / 8) {
+                        errorLogConsole.append(
+                                String.format("Файл ключа имеет некорректную длину. " +
+                                                "Ключ должен быть = %d битам\n",
+                                        EncryptorImpl.KEY_LENGTH));
+                        success = false;
                     } else {
                         settings.put("keyPath", keyPathTextField.getText());
                     }
                 } catch (IOException ex) {
-                    errorLogConsole.append("Не удалось проверить файл ключа. Убедитесь, что путь" +
-                            " указан верно.\n");
+                    errorLogConsole.append("Не удалось проверить файл ключа. " +
+                            "Убедитесь, что путь указан верно.\n");
+                    success = false;
+                }
+            }
+
+            if (!IVPathTextField.getText().equals("")) {
+                try {
+                    long size;
+                    try {
+                        size = getBytesFromURL(new URL(IVPathTextField.getText())).length;
+                    } catch (MalformedURLException exception) {
+                        size = Files.size(Path.of(IVPathTextField.getText()));
+                    }
+
+                    if (size != EncryptorImpl.pIVLen) {
+                        errorLogConsole.append(
+                                String.format("Файл вектора имеет некорректную " +
+                                                "длину. Вектор должен быть = %d битам\n",
+                                        EncryptorImpl.pIVLen));
+                        success = false;
+                    } else {
+                        settings.put("IVPath", IVPathTextField.getText());
+                    }
+                } catch (IOException ex) {
+                    errorLogConsole.append("Не удалось проверить файл начального вектора. " +
+                            "Убедитесь, что путь указан верно.\n");
                     success = false;
                 }
             }
@@ -146,12 +163,15 @@ public class SettingsForm extends javax.swing.JFrame {
     }
 
     private void browseDirAction(JTextField destination) {
-        int res = in.showOpenDialog(SettingsForm.this);
+        JFileChooser dirFileChooser = new JFileChooser();
+        dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        dirFileChooser.setDialogTitle("Выбор директории");
+        int res = dirFileChooser.showOpenDialog(SettingsForm.this);
         if (res == 0) {
-            File file = in.getSelectedFile();
-            if (file.exists() && file.isDirectory())
+            File file = dirFileChooser.getSelectedFile();
+            if (file.exists() && file.isDirectory()) {
                 destination.setText(file.getAbsolutePath());
-            else {
+            } else {
                 JOptionPane.showMessageDialog(null,
                         "Директория не найдена.");
                 browseDirAction(destination);
@@ -159,17 +179,41 @@ public class SettingsForm extends javax.swing.JFrame {
         }
     }
 
+    private void browseFileAction(JTextField destination) {
+        JFileChooser fileFileChooser = new JFileChooser();
+        fileFileChooser.setDialogTitle("Выбор файла");
+        int res = fileFileChooser.showOpenDialog(SettingsForm.this);
+        if (res == 0) {
+            File file = fileFileChooser.getSelectedFile();
+            if (file.exists() && file.isFile()) {
+                destination.setText(file.getAbsolutePath());
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Файл не найден.");
+                browseFileAction(destination);
+            }
+        }
+    }
+
+    private byte[] getBytesFromURL(URL resource) {
+        try (InputStream in = resource.openStream()) {
+            return in.readAllBytes();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            return null;
+        }
+    }
+
     public void init() {
-        f = new JFrame();
-        f.add(settingsPanel);
-        f.setSize(600, 500);
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.add(settingsPanel);
+        this.setSize(600, 500);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
-        int x = (screenSize.width - f.getWidth()) / 2;
-        int y = (screenSize.height - f.getHeight()) / 2;
-        f.setLocation(x, y);
+        int x = (screenSize.width - this.getWidth()) / 2;
+        int y = (screenSize.height - this.getHeight()) / 2;
+        this.setLocation(x, y);
 
         receiverPortTextField.setText(settings.get("receiverPort"));
         receiverAddressTextField.setText(settings.get("receiverAddress"));
@@ -177,9 +221,10 @@ public class SettingsForm extends javax.swing.JFrame {
         reportsDirectoryTextField.setText(settings.get("reportsDirectory"));
         cipherSystemComboBox.setSelectedItem(settings.get("cipherSystem"));
         keyPathTextField.setText(settings.get("keyPath"));
+        IVPathTextField.setText(settings.get("IVPath"));
 
         errorLogConsole.setText("");
 
-        f.setVisible(true);
+        this.setVisible(true);
     }
 }

@@ -102,7 +102,7 @@
                     <archive>
                         <manifest>
                             <mainClass>
-                                com.ssu.diploma.Main
+                                com.ssu.diploma.swing.StartForm
                             </mainClass>
                         </manifest>
                     </archive>
@@ -127,7 +127,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.ssu.diploma.Main</mainClass>
+                            <mainClass>com.ssu.diploma.swing.StartForm</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -41,12 +41,10 @@ public class EncryptorImpl implements Encryptor {
     }
 
     @Override
-    public byte[] generateKey() throws NoSuchAlgorithmException, IOException,
-            NoSuchProviderException {
+    public byte[] generateKey() throws NoSuchAlgorithmException, NoSuchProviderException {
         KeyGenerator keyGen = KeyGenerator.getInstance(systemName, "BC");
         keyGen.init(KEY_LENGTH);
         SecretKey key = keyGen.generateKey();
-//        Files.write(KEY_PATH, byteKey);
         return key.getEncoded();
     }
 
