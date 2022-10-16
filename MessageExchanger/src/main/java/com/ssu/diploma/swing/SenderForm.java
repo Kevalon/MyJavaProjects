@@ -22,7 +22,7 @@ public class SenderForm extends javax.swing.JFrame {
     private JButton stopButton;
     private JButton openFileButton;
     private JButton settingsButton;
-    private JRadioButton ChannelEncryptionRadio;
+    private JRadioButton LinkEncryptionRadio;
     private JRadioButton EndToEndRadio;
     private JComboBox modeComboBox;
 
@@ -32,8 +32,8 @@ public class SenderForm extends javax.swing.JFrame {
 
     /*
     TODO:
-     2) Написать форму получателя (тоже там настройки будут)
      3) Добавить логику для кнопок старт, стоп.
+     3.5) Логика старт, стоп в ресивере.
      4) Добавить нагрузочное тестирование, бесконечное тестирование, стресс тестирование
      */
 
@@ -43,7 +43,7 @@ public class SenderForm extends javax.swing.JFrame {
 
         modeComboBox.setModel(new DefaultComboBoxModel(modes));
 
-        ChannelEncryptionRadio.addActionListener(e -> {
+        LinkEncryptionRadio.addActionListener(e -> {
             if (EndToEndRadio.isSelected()) {
                 ButtonGroup rb = new ButtonGroup();
                 rb.add(EndToEndRadio);
@@ -52,9 +52,9 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         EndToEndRadio.addActionListener(e -> {
-            if (ChannelEncryptionRadio.isSelected()) {
+            if (LinkEncryptionRadio.isSelected()) {
                 ButtonGroup rb = new ButtonGroup();
-                rb.add(ChannelEncryptionRadio);
+                rb.add(LinkEncryptionRadio);
                 rb.clearSelection();
             }
         });

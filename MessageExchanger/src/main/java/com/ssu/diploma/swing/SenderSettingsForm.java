@@ -1,11 +1,10 @@
 package com.ssu.diploma.swing;
 
 import com.ssu.diploma.EncryptorImpl;
+import com.ssu.diploma.swing.utils.SwingCommons;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -17,9 +16,7 @@ import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -63,13 +60,17 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         settings.put("keyPath", DEFAULT_KEY_LOCATION.toString());
         settings.put("IVPath", DEFAULT_IV_LOCATION.toString());
 
-        choosePathButton1.addActionListener(e -> browseDirAction(testFilesDirectoryTextField));
-        choosePathButton2.addActionListener(e -> browseDirAction(reportsDirectoryTextField));
-        choosePathButton3.addActionListener(e -> browseFileAction(keyPathTextField));
-        choosePathButton4.addActionListener(e -> browseFileAction(IVPathTextField));
+        choosePathButton1.addActionListener(e ->
+                SwingCommons.browseDirAction(testFilesDirectoryTextField, this));
+        choosePathButton2.addActionListener(e ->
+                SwingCommons.browseDirAction(reportsDirectoryTextField, this));
+        choosePathButton3.addActionListener(e ->
+                SwingCommons.browseDirAction(keyPathTextField, this));
+        choosePathButton4.addActionListener(e ->
+                SwingCommons.browseDirAction(IVPathTextField, this));
 
         generateNewKeyButton.addActionListener(e -> {
-            browseDirAction(keyPathTextField);
+            SwingCommons.browseDirAction(keyPathTextField, this);
             keyPathTextField.setText(keyPathTextField.getText() + "\\key.txt");
 
             EncryptorImpl encryptor
@@ -85,7 +86,7 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         });
 
         generateNewIVButton.addActionListener(e -> {
-            browseDirAction(IVPathTextField);
+            SwingCommons.browseDirAction(IVPathTextField, this);
             keyPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
 
             EncryptorImpl encryptor
@@ -110,7 +111,8 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 try {
                     long size;
                     try {
-                        size = getBytesFromURL(new URL(keyPathTextField.getText())).length;
+                        size = SwingCommons.getBytesFromURL(
+                                new URL(keyPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Path.of(keyPathTextField.getText()));
                     }
@@ -135,7 +137,8 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 try {
                     long size;
                     try {
-                        size = getBytesFromURL(new URL(IVPathTextField.getText())).length;
+                        size = SwingCommons.getBytesFromURL(
+                                new URL(IVPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Path.of(IVPathTextField.getText()));
                     }
@@ -160,48 +163,6 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 errorLogConsole.append("Все изменения были успешно применены.\n");
             }
         });
-    }
-
-    private void browseDirAction(JTextField destination) {
-        JFileChooser dirFileChooser = new JFileChooser();
-        dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        dirFileChooser.setDialogTitle("Выбор директории");
-        int res = dirFileChooser.showOpenDialog(SenderSettingsForm.this);
-        if (res == 0) {
-            File file = dirFileChooser.getSelectedFile();
-            if (file.exists() && file.isDirectory()) {
-                destination.setText(file.getAbsolutePath());
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "Директория не найдена.");
-                browseDirAction(destination);
-            }
-        }
-    }
-
-    private void browseFileAction(JTextField destination) {
-        JFileChooser fileFileChooser = new JFileChooser();
-        fileFileChooser.setDialogTitle("Выбор файла");
-        int res = fileFileChooser.showOpenDialog(SenderSettingsForm.this);
-        if (res == 0) {
-            File file = fileFileChooser.getSelectedFile();
-            if (file.exists() && file.isFile()) {
-                destination.setText(file.getAbsolutePath());
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "Файл не найден.");
-                browseFileAction(destination);
-            }
-        }
-    }
-
-    private byte[] getBytesFromURL(URL resource) {
-        try (InputStream in = resource.openStream()) {
-            return in.readAllBytes();
-        } catch (IOException exception) {
-            exception.printStackTrace();
-            return null;
-        }
     }
 
     public void init() {

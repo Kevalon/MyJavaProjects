@@ -16,6 +16,8 @@ public class ReceiverForm extends javax.swing.JFrame {
     private JTextArea logConsole;
     private JButton settingsButton;
 
+    private final ReceiverSettingsForm receiverSettingsForm = new ReceiverSettingsForm();
+
     public ReceiverForm() {
         this.add(receiverPanel);
 
@@ -24,7 +26,7 @@ public class ReceiverForm extends javax.swing.JFrame {
         });
 
         settingsButton.addActionListener(e -> {
-
+            receiverSettingsForm.init();
         });
 
         stopButton.addActionListener(e -> {
@@ -39,6 +41,5 @@ public class ReceiverForm extends javax.swing.JFrame {
         int y = (screenSize.height - this.getHeight()) / 2;
         this.setLocation(x, y);
         this.setVisible(true);
-
     }
 }

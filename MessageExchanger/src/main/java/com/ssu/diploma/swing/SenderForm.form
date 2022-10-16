@@ -40,7 +40,7 @@
           <text value="Настройки"/>
         </properties>
       </component>
-      <component id="47cf6" class="javax.swing.JRadioButton" binding="ChannelEncryptionRadio">
+      <component id="47cf6" class="javax.swing.JRadioButton" binding="LinkEncryptionRadio">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
