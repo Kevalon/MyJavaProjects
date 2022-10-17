@@ -1,5 +1,6 @@
 package com.ssu.diploma.swing;
 
+import com.ssu.diploma.threads.Sender;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -29,6 +30,7 @@ public class SenderForm extends javax.swing.JFrame {
     private final String[] modes =
             {"Нагрузочное тестирование", "Стресс-тестирование", "Бесконечная отправка"};
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
+    private Thread senderThread;
 
     /*
     TODO:
@@ -60,6 +62,8 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         startButton.addActionListener(e -> {
+            senderThread = new Thread(new Sender(senderSettingsForm.getSettings(), logConsole));
+            senderThread.start();
             // попытка подключиться к серверу, уведомление об ошибке. (В принципе класс Sender можно юзать)
             // Отправка ключа шифрования, шифрсистемы, вектора инициализации.
 
@@ -76,8 +80,10 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         stopButton.addActionListener(e -> {
-            // Принудительно останавливает клиент, выводит об этом сообщение.
+            senderThread.interrupt();
+            logConsole.append("Отправитель успешно остановлен.\n");
             // чистит все внутренние каталоги с зашифрованными файлами.
+
         });
 
         settingsButton.addActionListener(e -> {

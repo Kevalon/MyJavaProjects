@@ -1,4 +1,4 @@
-package com.ssu.diploma;
+package com.ssu.diploma.ecnryption;
 
 import javax.crypto.Cipher;
 

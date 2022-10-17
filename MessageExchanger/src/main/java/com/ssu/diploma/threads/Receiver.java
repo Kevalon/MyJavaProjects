@@ -1,5 +1,7 @@
-package com.ssu.diploma;
+package com.ssu.diploma.threads;
 
+import com.ssu.diploma.ecnryption.Encryptor;
+import com.ssu.diploma.ecnryption.EncryptorImpl;
 import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -9,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.crypto.Cipher;
 
-public class Receiver {
+public class Receiver implements Runnable{
     public static final int PORT = 8081;
     public static final Path KEY_PATH = Path.of("./key.txt");
     public static final Path FILE_PATH = Path.of("./fileEncReally.txt");
@@ -50,5 +52,10 @@ public class Receiver {
         dataInputStream.close();
         socket.close();
         ss.close();
+    }
+
+    @Override
+    public void run() {
+
     }
 }

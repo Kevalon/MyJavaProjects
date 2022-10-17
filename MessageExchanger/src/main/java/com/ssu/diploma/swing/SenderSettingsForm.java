@@ -1,6 +1,6 @@
 package com.ssu.diploma.swing;
 
-import com.ssu.diploma.EncryptorImpl;
+import com.ssu.diploma.ecnryption.EncryptorImpl;
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -28,13 +28,11 @@ public class SenderSettingsForm extends javax.swing.JFrame {
     private JTextField receiverPortTextField;
     private JButton applyButton;
     private JTextField testFilesDirectoryTextField;
-    private JTextField reportsDirectoryTextField;
     private JTextArea errorLogConsole;
     private JTextField keyPathTextField;
     private JComboBox cipherSystemComboBox;
     private JButton generateNewKeyButton;
     private JButton choosePathButton1;
-    private JButton choosePathButton2;
     private JButton choosePathButton3;
     private JButton generateNewIVButton;
     private JTextField IVPathTextField;
@@ -62,8 +60,6 @@ public class SenderSettingsForm extends javax.swing.JFrame {
 
         choosePathButton1.addActionListener(e ->
                 SwingCommons.browseDirAction(testFilesDirectoryTextField, this));
-        choosePathButton2.addActionListener(e ->
-                SwingCommons.browseDirAction(reportsDirectoryTextField, this));
         choosePathButton3.addActionListener(e ->
                 SwingCommons.browseDirAction(keyPathTextField, this));
         choosePathButton4.addActionListener(e ->
@@ -104,7 +100,6 @@ public class SenderSettingsForm extends javax.swing.JFrame {
             settings.put("receiverAddress", receiverAddressTextField.getText());
             settings.put("receiverPort", receiverPortTextField.getText());
             settings.put("testFilesDirectory", testFilesDirectoryTextField.getText());
-            settings.put("reportsDirectory", reportsDirectoryTextField.getText());
             settings.put("cipherSystem", (String) cipherSystemComboBox.getSelectedItem());
 
             if (!keyPathTextField.getText().equals("")) {
@@ -179,7 +174,6 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         receiverPortTextField.setText(settings.get("receiverPort"));
         receiverAddressTextField.setText(settings.get("receiverAddress"));
         testFilesDirectoryTextField.setText(settings.get("testFilesDirectory"));
-        reportsDirectoryTextField.setText(settings.get("reportsDirectory"));
         cipherSystemComboBox.setSelectedItem(settings.get("cipherSystem"));
         keyPathTextField.setText(settings.get("keyPath"));
         IVPathTextField.setText(settings.get("IVPath"));
