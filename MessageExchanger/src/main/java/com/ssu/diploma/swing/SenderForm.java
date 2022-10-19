@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.IntStream;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -32,14 +33,6 @@ public class SenderForm extends javax.swing.JFrame {
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
     private Thread senderThread;
 
-    /*
-    TODO:
-     3) Добавить логику для кнопок старт, стоп.
-     3.5) Логика старт, стоп в ресивере.
-     4) Добавить нагрузочное тестирование, бесконечное тестирование, стресс тестирование
-     */
-
-
     public SenderForm() {
         this.add(senderPanel);
 
@@ -62,21 +55,18 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         startButton.addActionListener(e -> {
-            senderThread = new Thread(new Sender(senderSettingsForm.getSettings(), logConsole));
+            senderThread = new Thread(
+                    new Sender(
+                            senderSettingsForm.getSettings(),
+                            logConsole,
+                            IntStream.range(0, modes.length)
+                                    .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
+                                    .findFirst()
+                                    .getAsInt(),
+                            EndToEndRadio.isSelected()
+                    )
+            );
             senderThread.start();
-            // попытка подключиться к серверу, уведомление об ошибке. (В принципе класс Sender можно юзать)
-            // Отправка ключа шифрования, шифрсистемы, вектора инициализации.
-
-            // 3 вида тестирования:
-            // 1 нагрузочное - начни с него
-            // Берем папку с файлами и отправляем эти файлы один за другим. Выводим время после ответа о том,
-            // что оно было получено. Так же выводим размер отправленного файла и размер полученного файла, чтобы
-            // показать потери.
-
-            // 3 беск отправка
-
-            // 2 стресс тест - указывается папка с файлами, которые надо отправить, а затем
-            // включается нагрузка на роутер и коммутатор. (указывается уровень нагрузки)
         });
 
         stopButton.addActionListener(e -> {
