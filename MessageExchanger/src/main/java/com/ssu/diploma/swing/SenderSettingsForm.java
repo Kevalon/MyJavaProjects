@@ -1,6 +1,6 @@
 package com.ssu.diploma.swing;
 
-import com.ssu.diploma.ecnryption.EncryptorImpl;
+import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.awt.Dimension;
 import java.awt.Toolkit;

@@ -1,6 +1,7 @@
-package com.ssu.diploma.ecnryption;
+package com.ssu.diploma.encryption;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
@@ -10,6 +11,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -40,7 +42,7 @@ public class RSA {
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
             InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE,
                 KeyFactory.getInstance("RSA")
                         .generatePublic(
@@ -52,15 +54,21 @@ public class RSA {
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             InvalidKeySpecException, InvalidKeyException, IllegalBlockSizeException,
             BadPaddingException {
-        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE,
                 KeyFactory.getInstance("RSA")
                         .generatePrivate(
-                                new X509EncodedKeySpec(Files.readAllBytes(PRIVATE_KEY_PATH))));
+                                new PKCS8EncodedKeySpec(Files.readAllBytes(PRIVATE_KEY_PATH))));
         return cipher.doFinal(data);
     }
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        new RSA().generateKeyPair();
+    public static void main(String[] args)
+            throws NoSuchAlgorithmException, IOException, NoSuchPaddingException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
+            InvalidKeyException {
+        RSA rsa = new RSA();
+        byte[] encrypt = rsa.encrypt("testadsad111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111".getBytes(StandardCharsets.UTF_8));
+        byte[] decrypt = rsa.decrypt(encrypt);
+        System.out.println(new String(decrypt));
     }
 }

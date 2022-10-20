@@ -24,8 +24,8 @@ public class SenderForm extends javax.swing.JFrame {
     private JButton stopButton;
     private JButton openFileButton;
     private JButton settingsButton;
-    private JRadioButton LinkEncryptionRadio;
-    private JRadioButton EndToEndRadio;
+    private JRadioButton linkEncryptionRadio;
+    private JRadioButton endToEndRadio;
     private JComboBox modeComboBox;
 
     private final String[] modes =
@@ -38,18 +38,20 @@ public class SenderForm extends javax.swing.JFrame {
 
         modeComboBox.setModel(new DefaultComboBoxModel(modes));
 
-        LinkEncryptionRadio.addActionListener(e -> {
-            if (EndToEndRadio.isSelected()) {
+        endToEndRadio.setSelected(true);
+
+        linkEncryptionRadio.addActionListener(e -> {
+            if (endToEndRadio.isSelected()) {
                 ButtonGroup rb = new ButtonGroup();
-                rb.add(EndToEndRadio);
+                rb.add(endToEndRadio);
                 rb.clearSelection();
             }
         });
 
-        EndToEndRadio.addActionListener(e -> {
-            if (LinkEncryptionRadio.isSelected()) {
+        endToEndRadio.addActionListener(e -> {
+            if (linkEncryptionRadio.isSelected()) {
                 ButtonGroup rb = new ButtonGroup();
-                rb.add(LinkEncryptionRadio);
+                rb.add(linkEncryptionRadio);
                 rb.clearSelection();
             }
         });
@@ -63,7 +65,7 @@ public class SenderForm extends javax.swing.JFrame {
                                     .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
                                     .findFirst()
                                     .getAsInt(),
-                            EndToEndRadio.isSelected()
+                            endToEndRadio.isSelected()
                     )
             );
             senderThread.start();

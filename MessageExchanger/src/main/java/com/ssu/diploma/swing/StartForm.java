@@ -17,7 +17,6 @@ public class StartForm extends javax.swing.JFrame {
     private JPanel mainPanel;
 
     public StartForm() {
-        //mainPanel.setLayout(new BoxLayout(mainPanel, ));
         this.add(mainPanel);
         senderButton.addActionListener(e -> {
             new SenderForm();

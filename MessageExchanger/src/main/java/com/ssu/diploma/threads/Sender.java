@@ -1,15 +1,16 @@
 package com.ssu.diploma.threads;
 
 import com.ssu.diploma.dto.EncryptionParametersDto;
-import com.ssu.diploma.ecnryption.Encryptor;
-import com.ssu.diploma.ecnryption.EncryptorImpl;
-import com.ssu.diploma.ecnryption.RSA;
+import com.ssu.diploma.encryption.Encryptor;
+import com.ssu.diploma.encryption.EncryptorImpl;
+import com.ssu.diploma.encryption.RSA;
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -102,7 +103,7 @@ public class Sender implements Runnable {
                 throw e;
             }
         }
-        return new EncryptionParametersDto(key, IV, settings.get("cipherSystem"));
+        return new EncryptionParametersDto(key, IV, settings.get("cipherSystem"), mode);
     }
 
 //    public static void send() {
@@ -145,41 +146,45 @@ public class Sender implements Runnable {
 
     @Override
     public void run() {
+        try {
+            init();
+        } catch (IOException e) {
+            return;
+        }
+        EncryptionParametersDto parametersDto;
+        try {
+            parametersDto = getDto();
+        } catch (IOException e) {
+            return;
+        }
+
+        try {
+            dataOut.writeChars("ENC_PAR");
+            dataOut.write(rsaInstance.encrypt(parametersDto.getKey()));
+            dataOut.write(rsaInstance.encrypt(parametersDto.getIV()));
+            dataOut.write(
+                    rsaInstance
+                            .encrypt(parametersDto
+                                    .getCipherSystem()
+                                    .getBytes(StandardCharsets.UTF_8))
+            );
+            dataOut.write(rsaInstance.encrypt(
+                    BigInteger.valueOf(parametersDto.getMode()).toByteArray()
+            ));
+        } catch (IOException exception) {
+            logConsole.append("Не получилось отправить параметры шифрования получателю.\n");
+            return;
+        } catch (GeneralSecurityException e) {
+            logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
+        }
         while (!Thread.currentThread().isInterrupted()) {
-            try {
-                init();
-            } catch (IOException e) {
-                break;
-            }
-            EncryptionParametersDto parametersDto;
-            try {
-                parametersDto = getDto();
-            } catch (IOException e) {
-                break;
-            }
-
-            try {
-                dataOut.writeChars("ENC_PAR");
-                dataOut.write(rsaInstance.encrypt(parametersDto.getKey()));
-                dataOut.write(rsaInstance.encrypt(parametersDto.getIV()));
-                dataOut.write(
-                        rsaInstance
-                                .encrypt(parametersDto
-                                        .getCipherSystem()
-                                        .getBytes(StandardCharsets.UTF_8))
-                );
-            } catch (IOException exception) {
-                logConsole.append("Не получилось отправить параметры шифрования получателю.\n");
-                break;
-            } catch (GeneralSecurityException e) {
-                logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
-            }
-
             // 3 метода работы
             if (mode == 1) loadTesting();
             if (mode == 2) stressTesting();
             if (mode == 3) infiniteTexting();
+            break;
         }
+        logConsole.append("closed\n");
         try {
             close();
         } catch (IOException e) {

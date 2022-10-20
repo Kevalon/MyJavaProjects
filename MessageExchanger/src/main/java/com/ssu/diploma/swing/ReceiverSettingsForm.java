@@ -32,7 +32,7 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
         });
 
         applyButton.addActionListener(e -> {
-            settings.put("receiverPort", receiverPortTextField.getText());
+            settings.put("serverPort", receiverPortTextField.getText());
             settings.put("receivedFilesDirectory", receivedFilesDirectoryTextField.getText());
 
             errorLogConsole.append("Все изменения были успешно применены.\n");

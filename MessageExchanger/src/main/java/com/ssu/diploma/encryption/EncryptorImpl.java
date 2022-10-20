@@ -1,4 +1,4 @@
-package com.ssu.diploma.ecnryption;
+package com.ssu.diploma.encryption;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -84,5 +84,10 @@ public class EncryptorImpl implements Encryptor {
             output.write(cipher.doFinal());
             output.flush();
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        byte[] IV = new EncryptorImpl("AES").generateIV();
+        Files.write(Path.of("./src/main/resources/IV.txt"), IV);
     }
 }

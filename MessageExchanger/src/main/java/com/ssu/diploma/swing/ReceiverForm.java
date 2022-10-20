@@ -1,9 +1,8 @@
 package com.ssu.diploma.swing;
 
+import com.ssu.diploma.threads.Receiver;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,12 +16,16 @@ public class ReceiverForm extends javax.swing.JFrame {
     private JButton settingsButton;
 
     private final ReceiverSettingsForm receiverSettingsForm = new ReceiverSettingsForm();
+    private Thread receiverThread;
 
     public ReceiverForm() {
         this.add(receiverPanel);
 
         startButton.addActionListener(e -> {
-
+            // clean all trash from previous launch
+            receiverThread = new Thread(
+                    new Receiver(receiverSettingsForm.getSettings(), logConsole));
+            receiverThread.start();
         });
 
         settingsButton.addActionListener(e -> {
@@ -30,7 +33,8 @@ public class ReceiverForm extends javax.swing.JFrame {
         });
 
         stopButton.addActionListener(e -> {
-
+            receiverThread.interrupt();
+            logConsole.append("Получатель успешно остановлен.\n");
         });
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

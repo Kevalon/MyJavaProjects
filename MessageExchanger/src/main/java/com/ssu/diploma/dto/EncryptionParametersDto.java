@@ -9,4 +9,5 @@ public class EncryptionParametersDto {
     private byte[] key;
     private byte[] IV;
     private String cipherSystem;
+    private int mode;
 }
