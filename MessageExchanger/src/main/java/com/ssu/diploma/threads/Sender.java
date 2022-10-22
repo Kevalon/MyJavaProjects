@@ -159,32 +159,36 @@ public class Sender implements Runnable {
         }
 
         try {
-            dataOut.writeChars("ENC_PAR");
+            dataOut.write("ENC_PAR".getBytes(StandardCharsets.UTF_8));
+            dataOut.flush();
             dataOut.write(rsaInstance.encrypt(parametersDto.getKey()));
+            dataOut.flush();
             dataOut.write(rsaInstance.encrypt(parametersDto.getIV()));
+            dataOut.flush();
             dataOut.write(
                     rsaInstance
                             .encrypt(parametersDto
                                     .getCipherSystem()
                                     .getBytes(StandardCharsets.UTF_8))
             );
+            dataOut.flush();
             dataOut.write(rsaInstance.encrypt(
                     BigInteger.valueOf(parametersDto.getMode()).toByteArray()
             ));
+            dataOut.flush();
         } catch (IOException exception) {
             logConsole.append("Не получилось отправить параметры шифрования получателю.\n");
             return;
         } catch (GeneralSecurityException e) {
             logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
         }
+        System.out.println("Reached the while");
         while (!Thread.currentThread().isInterrupted()) {
             // 3 метода работы
             if (mode == 1) loadTesting();
             if (mode == 2) stressTesting();
             if (mode == 3) infiniteTexting();
-            break;
         }
-        logConsole.append("closed\n");
         try {
             close();
         } catch (IOException e) {

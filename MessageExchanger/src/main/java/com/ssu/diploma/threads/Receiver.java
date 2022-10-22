@@ -4,7 +4,9 @@ import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
 import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.encryption.RSA;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigInteger;
@@ -26,8 +28,8 @@ public class Receiver implements Runnable {
     private int mode; // 1, 2, 3
     private ServerSocket ss;
     private Socket clientSocket;
-    private PrintWriter out;
-    DataInputStream in;
+    private DataOutputStream out;
+    private DataInputStream in;
 
     public Receiver(Map<String, String> settings, JTextArea logConsole) {
         this.settings = settings;
@@ -46,7 +48,8 @@ public class Receiver implements Runnable {
         clientSocket = ss.accept();
 
         try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            out = new DataOutputStream(
+                    new BufferedOutputStream(clientSocket.getOutputStream()));;
             in = new DataInputStream(clientSocket.getInputStream());
         } catch (IOException exception) {
             logConsole.append("Не удалось открыть потоки на чтение и запись для отправителя.\n");
@@ -77,13 +80,15 @@ public class Receiver implements Runnable {
             GeneralSecurityException {
         byte[] encData = new byte["ENC_PAR".getBytes(StandardCharsets.UTF_8).length];
         try {
+            System.out.println("prepared to read");
             in.read(encData);
+            System.out.println("all read");
         } catch (IOException e) {
             logConsole.append("Не удалось прочитать входные данные.\n");
             throw e;
         }
         try {
-            if (!(new String(rsaInstance.decrypt(encData)).equals("ENC_PAR"))) {
+            if (!(new String(encData).equals("ENC_PAR"))) {
                 throw new IOException();
             } else {
                 byte[] key = new byte[32];
@@ -91,17 +96,11 @@ public class Receiver implements Runnable {
                 byte[] cipherSystem = new byte[RESOURCE_BUFFER_SIZE];
                 byte[] mode = new byte[RESOURCE_BUFFER_SIZE];
                 in.read(key);
-                System.out.println("reached");
                 in.read(IV);
-                System.out.println("reached");
                 in.read(cipherSystem);
-                System.out.println("reached");
                 in.read(mode);
-                System.out.println("reached");
                 key = rsaInstance.decrypt(key);
-                System.out.println("reached");
                 IV = rsaInstance.decrypt(IV);
-                System.out.println("reached");
                 return new EncryptionParametersDto(
                         rsaInstance.decrypt(key),
                         rsaInstance.decrypt(IV),
@@ -156,6 +155,7 @@ public class Receiver implements Runnable {
         } catch (Exception e) {
             return;
         }
+        System.out.println("All is good");
         while (!Thread.currentThread().isInterrupted()) {
 
 
@@ -170,7 +170,6 @@ public class Receiver implements Runnable {
 //                infiniteTexting();
 //            }
         }
-        logConsole.append("closed.\n");
         try {
             close();
         } catch (IOException e) {

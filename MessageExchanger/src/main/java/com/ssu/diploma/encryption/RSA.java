@@ -9,6 +9,7 @@ import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -17,6 +18,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class RSA {
@@ -30,8 +32,9 @@ public class RSA {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public void generateKeyPair() throws NoSuchAlgorithmException, IOException {
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    public void generateKeyPair()
+            throws NoSuchAlgorithmException, IOException, NoSuchProviderException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", "BC");
         keyGen.initialize(512);
         KeyPair pair = keyGen.generateKeyPair();
         Files.write(PRIVATE_KEY_PATH, pair.getPrivate().getEncoded());
@@ -41,34 +44,55 @@ public class RSA {
     public byte[] encrypt(byte[] data)
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
-            InvalidKeyException {
-        Cipher cipher = Cipher.getInstance("RSA");
+            InvalidKeyException, NoSuchProviderException, ShortBufferException {
+        Cipher cipher = Cipher.getInstance("RSA/None/NoPadding", "BC");
         cipher.init(Cipher.ENCRYPT_MODE,
-                KeyFactory.getInstance("RSA")
+                KeyFactory.getInstance("RSA", "BC")
                         .generatePublic(
                                 new X509EncodedKeySpec(Files.readAllBytes(PUBLIC_KEY_PATH))));
-        return cipher.doFinal(data);
+        if (data.length > 64) {
+            byte[] res = new byte[data.length];
+            byte[] temp;
+            for (int i = 0; i < res.length; i += 64) {
+                temp = new byte[64];
+                cipher.doFinal(data, i, 64, temp);
+                System.arraycopy(temp, 0, res, i, temp.length);
+            }
+            return res;
+        } else return cipher.doFinal(data);
     }
 
     public byte[] decrypt(byte[] data)
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             InvalidKeySpecException, InvalidKeyException, IllegalBlockSizeException,
-            BadPaddingException {
-        Cipher cipher = Cipher.getInstance("RSA");
+            BadPaddingException, NoSuchProviderException, ShortBufferException {
+        Cipher cipher = Cipher.getInstance("RSA/None/NoPadding", "BC");
         cipher.init(Cipher.DECRYPT_MODE,
-                KeyFactory.getInstance("RSA")
+                KeyFactory.getInstance("RSA", "BC")
                         .generatePrivate(
                                 new PKCS8EncodedKeySpec(Files.readAllBytes(PRIVATE_KEY_PATH))));
-        return cipher.doFinal(data);
+        if (data.length > 64) {
+            byte[] res = new byte[data.length];
+            byte[] temp;
+            for (int i = 0; i < res.length; i += 64) {
+                temp = new byte[64];
+                cipher.doFinal(data, i, 64, temp);
+                System.arraycopy(temp, 0, res, i, temp.length);
+            }
+            return res;
+        } else return cipher.doFinal(data);
     }
 
     public static void main(String[] args)
             throws NoSuchAlgorithmException, IOException, NoSuchPaddingException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
-            InvalidKeyException {
+            InvalidKeyException, NoSuchProviderException, ShortBufferException {
         RSA rsa = new RSA();
-        byte[] encrypt = rsa.encrypt("testadsad111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111".getBytes(StandardCharsets.UTF_8));
+        String test = "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttyyuuvvwwxxyyzz,,..//??!!aabbccddeeffgghhiijjkkllmmnnooppqqrrssttyyuuvvwwxxyyzz,,..//??!!";
+        //System.out.println(test.getBytes(StandardCharsets.UTF_8).length);
+        rsa.generateKeyPair();
+        byte[] encrypt = rsa.encrypt(test.getBytes(StandardCharsets.UTF_8));
         byte[] decrypt = rsa.decrypt(encrypt);
-        System.out.println(new String(decrypt));
+        System.out.println(new String(decrypt)  );
     }
 }
