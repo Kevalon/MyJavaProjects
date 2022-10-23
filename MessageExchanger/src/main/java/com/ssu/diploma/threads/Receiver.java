@@ -40,6 +40,7 @@ public class Receiver implements Runnable {
     private void init() throws IOException {
         try {
             ss = new ServerSocket(Integer.parseInt(settings.get("serverPort")));
+            logConsole.append("Получатель успешно запущен. Ожидаю отправителя.\n");
         } catch (IOException e) {
             logConsole.append(String.format("Не удалось запустить сервер на порте %s.\n",
                     settings.get("serverPort")));

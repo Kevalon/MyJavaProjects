@@ -48,7 +48,7 @@ public class Sender implements Runnable {
                     settings.get("receiverAddress"),
                     Integer.parseInt(settings.get("receiverPort"))
             );
-            logConsole.append("Соединение с получателем установлено");
+            logConsole.append("Соединение с получателем установлено.\n");
         } catch (IOException e) {
             logConsole.append("Не удалось подключиться к получателю. Проверь адрес и порт.\n");
             throw e;
@@ -98,7 +98,7 @@ public class Sender implements Runnable {
             IV = SwingCommons.getBytesFromURL(new URL(settings.get("IVPath")));
         } catch (MalformedURLException exception) {
             try {
-                IV = Files.readAllBytes(Path.of(settings.get("ШМPath")));
+                IV = Files.readAllBytes(Path.of(settings.get("IVPath")));
             } catch (IOException e) {
                 logConsole.append("Ошибка чтения файла начального вектора.\n");
                 throw e;
@@ -197,7 +197,7 @@ public class Sender implements Runnable {
         logConsole.append("");
 
         while (!Thread.currentThread().isInterrupted()) {
-            // 3 метода работы
+            // 2 метода работы
             if (mode == 0) loadTesting();
             if (mode == 1) infiniteTexting();
         }

@@ -29,7 +29,7 @@ public class SwingCommons {
         }
     }
 
-    private static void browseFileAction(JTextField destination, JFrame frame) {
+    public static void browseFileAction(JTextField destination, JFrame frame) {
         JFileChooser fileFileChooser = new JFileChooser();
         fileFileChooser.setDialogTitle("Выбор файла");
         int res = fileFileChooser.showOpenDialog(frame);

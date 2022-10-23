@@ -61,9 +61,9 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         choosePathButton1.addActionListener(e ->
                 SwingCommons.browseDirAction(testFilesDirectoryTextField, this));
         choosePathButton3.addActionListener(e ->
-                SwingCommons.browseDirAction(keyPathTextField, this));
+                SwingCommons.browseFileAction(keyPathTextField, this));
         choosePathButton4.addActionListener(e ->
-                SwingCommons.browseDirAction(IVPathTextField, this));
+                SwingCommons.browseFileAction(IVPathTextField, this));
 
         generateNewKeyButton.addActionListener(e -> {
             SwingCommons.browseDirAction(keyPathTextField, this);
@@ -83,7 +83,7 @@ public class SenderSettingsForm extends javax.swing.JFrame {
 
         generateNewIVButton.addActionListener(e -> {
             SwingCommons.browseDirAction(IVPathTextField, this);
-            keyPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
+            IVPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
 
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
