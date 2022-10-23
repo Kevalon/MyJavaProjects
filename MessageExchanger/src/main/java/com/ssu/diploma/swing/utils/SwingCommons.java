@@ -1,6 +1,5 @@
 package com.ssu.diploma.swing.utils;
 
-import com.ssu.diploma.swing.SenderSettingsForm;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

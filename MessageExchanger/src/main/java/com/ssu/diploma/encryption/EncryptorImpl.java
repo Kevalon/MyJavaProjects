@@ -1,8 +1,11 @@
 package com.ssu.diploma.encryption;
 
+import com.ssu.diploma.swing.utils.SwingCommons;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -22,8 +25,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 @Getter
 public class EncryptorImpl implements Encryptor {
 
-    private static final Path KEY_PATH = Path.of("./src/main/resources/key.txt");
-    private static final Path IV_PATH = Path.of("./src/main/resources/IV.txt");
     public static final int KEY_LENGTH = 256;
     //    "AES" or "GOST3412-2015"
     public final String systemName;
@@ -55,11 +56,33 @@ public class EncryptorImpl implements Encryptor {
     }
 
     @Override
-    public Cipher init(byte[] byteKey, boolean encrypt) throws Exception {
+    public Cipher init(String keyPath, String IVPath, boolean encrypt) throws Exception {
         Cipher cipher = Cipher.getInstance(systemName, "BC");
-        byte[] IV = Files.readAllBytes(IV_PATH);
-        SecretKey key = new SecretKeySpec(byteKey, systemName);
+        byte[] IV, keyByte;
+        try {
+            keyByte = SwingCommons.getBytesFromURL(new URL(keyPath));
+        } catch (MalformedURLException exception) {
+            keyByte = Files.readAllBytes(Path.of(keyPath));
+        }
+        try {
+            IV = SwingCommons.getBytesFromURL(new URL(IVPath));
+        } catch (MalformedURLException exception) {
+            IV = Files.readAllBytes(Path.of(IVPath));
+        }
+        SecretKey key = new SecretKeySpec(keyByte, systemName);
 
+        if (encrypt) {
+            cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(IV));
+        } else {
+            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(IV));
+        }
+        return cipher;
+    }
+
+    @Override
+    public Cipher init(byte[] keyByte, byte[] IV, boolean encrypt) throws Exception {
+        Cipher cipher = Cipher.getInstance(systemName, "BC");
+        SecretKey key = new SecretKeySpec(keyByte, systemName);
         if (encrypt) {
             cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(IV));
         } else {
@@ -73,7 +96,7 @@ public class EncryptorImpl implements Encryptor {
             throws IllegalBlockSizeException, BadPaddingException, IOException {
         try (
                 FileInputStream input = new FileInputStream(source);
-                FileOutputStream output = new FileOutputStream(destination);
+                FileOutputStream output = new FileOutputStream(destination)
         ) {
             byte[] buffer = new byte[buffSize];
             int count = input.read(buffer);
