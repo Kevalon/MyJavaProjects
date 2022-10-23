@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -18,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Map;
 import javax.swing.JTextArea;
 
@@ -31,7 +31,7 @@ public class Sender implements Runnable {
     private DataOutputStream dataOut;
     private BufferedReader inReader;
     private final RSA rsaInstance = new RSA();
-    private final int mode; // 1, 2, 3
+    private final int mode; // 0, 1
     private final boolean encrypt;
 
     public Sender(Map<String, String> settings, JTextArea logConsole, int mode, boolean encrypt) {
@@ -48,6 +48,7 @@ public class Sender implements Runnable {
                     settings.get("receiverAddress"),
                     Integer.parseInt(settings.get("receiverPort"))
             );
+            logConsole.append("Соединение с получателем установлено");
         } catch (IOException e) {
             logConsole.append("Не удалось подключиться к получателю. Проверь адрес и порт.\n");
             throw e;
@@ -103,7 +104,27 @@ public class Sender implements Runnable {
                 throw e;
             }
         }
-        return new EncryptionParametersDto(key, IV, settings.get("cipherSystem"), mode);
+        return EncryptionParametersDto.builder()
+                .IV(IV)
+                .key(key)
+                .cipherSystem(settings.get("cipherSystem"))
+                .build();
+    }
+
+    private void send(Object data) throws IOException {
+        if (data instanceof byte[]) {
+            byte[] newData = (byte[]) data;
+            dataOut.writeInt(newData.length);
+            dataOut.flush();
+            dataOut.write(newData);
+            dataOut.flush();
+        } else if (data instanceof Integer) {
+            dataOut.writeInt((int) data);
+            dataOut.flush();
+        } else if (data instanceof Character) {
+            dataOut.writeInt((char) data);
+            dataOut.flush();
+        }
     }
 
 //    public static void send() {
@@ -132,16 +153,8 @@ public class Sender implements Runnable {
         // показать потери.
     }
 
-    private void stressTesting() {
-        // 2 стресс тест - указывается папка с файлами, которые надо отправить, а затем
-        // пул потоков начинает подключаться к рандомным ip адресам и рандомным портам, с вероятностью
-        // в 1 процент выбирается нормальное соединение в одном из потоков. Это соединение отправляет ряд
-        // файлов на комп получателя, а тот в ответ шлет размер принятого файла, чтобы понять
-        // были ли потери.
-    }
-
     private void infiniteTexting() {
-        // 3 беск отправка
+        // 2 беск отправка
     }
 
     @Override
@@ -159,35 +172,34 @@ public class Sender implements Runnable {
         }
 
         try {
-            dataOut.write("ENC_PAR".getBytes(StandardCharsets.UTF_8));
-            dataOut.flush();
-            dataOut.write(rsaInstance.encrypt(parametersDto.getKey()));
-            dataOut.flush();
-            dataOut.write(rsaInstance.encrypt(parametersDto.getIV()));
-            dataOut.flush();
-            dataOut.write(
-                    rsaInstance
-                            .encrypt(parametersDto
-                                    .getCipherSystem()
-                                    .getBytes(StandardCharsets.UTF_8))
-            );
-            dataOut.flush();
-            dataOut.write(rsaInstance.encrypt(
-                    BigInteger.valueOf(parametersDto.getMode()).toByteArray()
-            ));
-            dataOut.flush();
+            send("ENC_PAR".getBytes(StandardCharsets.UTF_8));
+            System.out.println("ENC_PAR: " +
+                    Arrays.toString("ENC_PAR".getBytes(StandardCharsets.UTF_8)));
+            send(mode);
+            if (encrypt) {
+                send(1);
+            } else send(0);
+
+            System.out.println(Arrays.toString(parametersDto.getKey()));
+            System.out.println(Arrays.toString(parametersDto.getIV()));
+            System.out.println((int) parametersDto.getCipherSystem().charAt(0));
+            if (encrypt) {
+                send(rsaInstance.encrypt(parametersDto.getKey()));
+                send(rsaInstance.encrypt(parametersDto.getIV()));
+                send(parametersDto.getCipherSystem().charAt(0));
+            }
         } catch (IOException exception) {
             logConsole.append("Не получилось отправить параметры шифрования получателю.\n");
             return;
         } catch (GeneralSecurityException e) {
             logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
         }
-        System.out.println("Reached the while");
+        logConsole.append("");
+
         while (!Thread.currentThread().isInterrupted()) {
             // 3 метода работы
-            if (mode == 1) loadTesting();
-            if (mode == 2) stressTesting();
-            if (mode == 3) infiniteTexting();
+            if (mode == 0) loadTesting();
+            if (mode == 1) infiniteTexting();
         }
         try {
             close();

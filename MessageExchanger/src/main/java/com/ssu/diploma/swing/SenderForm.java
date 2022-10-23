@@ -29,7 +29,7 @@ public class SenderForm extends javax.swing.JFrame {
     private JComboBox modeComboBox;
 
     private final String[] modes =
-            {"Нагрузочное тестирование", "Стресс-тестирование", "Бесконечная отправка"};
+            {"Нагрузочное тестирование", "Бесконечная отправка"};
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
     private Thread senderThread;
 

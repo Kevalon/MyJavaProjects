@@ -46,10 +46,11 @@ public class Receiver implements Runnable {
             throw e;
         }
         clientSocket = ss.accept();
+        logConsole.append("Клиент " + clientSocket.getInetAddress() + " успешно подключился.\n");
 
         try {
             out = new DataOutputStream(
-                    new BufferedOutputStream(clientSocket.getOutputStream()));;
+                    new BufferedOutputStream(clientSocket.getOutputStream()));
             in = new DataInputStream(clientSocket.getInputStream());
         } catch (IOException exception) {
             logConsole.append("Не удалось открыть потоки на чтение и запись для отправителя.\n");
@@ -78,36 +79,16 @@ public class Receiver implements Runnable {
 
     private EncryptionParametersDto setUpEncParameters() throws IOException,
             GeneralSecurityException {
-        byte[] encData = new byte["ENC_PAR".getBytes(StandardCharsets.UTF_8).length];
         try {
-            System.out.println("prepared to read");
-            in.read(encData);
-            System.out.println("all read");
-        } catch (IOException e) {
-            logConsole.append("Не удалось прочитать входные данные.\n");
-            throw e;
-        }
-        try {
-            if (!(new String(encData).equals("ENC_PAR"))) {
-                throw new IOException();
-            } else {
-                byte[] key = new byte[32];
-                byte[] IV = new byte[8];
-                byte[] cipherSystem = new byte[RESOURCE_BUFFER_SIZE];
-                byte[] mode = new byte[RESOURCE_BUFFER_SIZE];
-                in.read(key);
-                in.read(IV);
-                in.read(cipherSystem);
-                in.read(mode);
-                key = rsaInstance.decrypt(key);
-                IV = rsaInstance.decrypt(IV);
-                return new EncryptionParametersDto(
-                        rsaInstance.decrypt(key),
-                        rsaInstance.decrypt(IV),
-                        new String(rsaInstance.decrypt(cipherSystem)),
-                        new BigInteger(rsaInstance.decrypt(mode)).intValue()
-                );
-            }
+
+            byte[] key = receiveByteArray();
+            byte[] IV = receiveByteArray();
+            char cipherFirstLetter = (char) in.readInt();
+            System.out.println(cipherFirstLetter);
+            key = rsaInstance.decrypt(key);
+            IV = rsaInstance.decrypt(IV);
+            return new EncryptionParametersDto(key, IV,
+                    cipherFirstLetter == 'A' ? "AES" : "GOST3412-2015");
         } catch (IOException exception) {
             logConsole.append("Не получилось прочитать параметры шифрования.\n");
             throw exception;
@@ -117,7 +98,17 @@ public class Receiver implements Runnable {
         }
     }
 
-    public static void receive() {
+    private byte[] receiveByteArray() throws IOException {
+        int length = in.readInt();
+        if (length > 0) {
+            byte[] message = new byte[length];
+            in.readFully(message, 0, message.length);
+            return message;
+        }
+        throw new IOException();
+    }
+
+    public static void smack() {
 //
 //        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 //        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
@@ -149,13 +140,31 @@ public class Receiver implements Runnable {
         } catch (IOException e) {
             return;
         }
-        EncryptionParametersDto dto;
+
+        EncryptionParametersDto encParameters = null;
         try {
-            dto = setUpEncParameters();
-        } catch (Exception e) {
+            byte[] encData = receiveByteArray();
+            if (!(new String(encData).equals("ENC_PAR"))) {
+                throw new IOException();
+            }
+            mode = in.readInt();
+            System.out.println(mode);
+            encrypt = in.readInt() == 1;
+            System.out.println(encrypt);
+            if (encrypt) {
+                encParameters = setUpEncParameters();
+            }
+            logConsole.append("Параметры работы и шифрования успешно получены.\n");
+        } catch (IOException e) {
+            logConsole.append("Не удалось прочитать входные данные.\n");
+            return;
+        } catch (GeneralSecurityException e) {
+            logConsole.append("Ошибка расшифрования параметров сквозного шифрования.\n");
             return;
         }
-        System.out.println("All is good");
+        System.out.println(encParameters);
+
+
         while (!Thread.currentThread().isInterrupted()) {
 
 
