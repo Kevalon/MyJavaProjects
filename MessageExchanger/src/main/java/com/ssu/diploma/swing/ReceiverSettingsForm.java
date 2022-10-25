@@ -3,6 +3,8 @@ package com.ssu.diploma.swing;
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JButton;
@@ -33,8 +35,17 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
 
         applyButton.addActionListener(e -> {
             settings.put("serverPort", receiverPortTextField.getText());
-            settings.put("receivedFilesDirectory", receivedFilesDirectoryTextField.getText());
 
+            if (!receivedFilesDirectoryTextField.getText().equals("")) {
+                if (Files.isDirectory(Path.of(receivedFilesDirectoryTextField.getText()))) {
+                    settings.put("receivedFilesDirectory",
+                            receivedFilesDirectoryTextField.getText());
+                } else {
+                    errorLogConsole.append(
+                            "Не получилось проверить указанную директорию для файлов.\n");
+                    return;
+                }
+            }
             errorLogConsole.append("Все изменения были успешно применены.\n");
         });
     }

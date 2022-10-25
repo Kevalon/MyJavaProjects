@@ -23,6 +23,12 @@ public class ReceiverForm extends javax.swing.JFrame {
 
         startButton.addActionListener(e -> {
             // clean all trash from previous launch
+            String test = receiverSettingsForm.getSettings().get("receivedFilesDirectory");
+            if (test == null || test.equals("")) {
+                logConsole.append(
+                        "Пожалуйста, выберите директорию для принимаемых файлов в настройках.\n");
+                return;
+            }
             receiverThread = new Thread(
                     new Receiver(receiverSettingsForm.getSettings(), logConsole));
             receiverThread.start();
@@ -33,6 +39,10 @@ public class ReceiverForm extends javax.swing.JFrame {
         });
 
         stopButton.addActionListener(e -> {
+            if (receiverThread == null) {
+                logConsole.append("Получатель не запущен.\n");
+                return;
+            }
             receiverThread.interrupt();
             logConsole.append("Получатель успешно остановлен.\n");
         });

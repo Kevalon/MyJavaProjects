@@ -4,6 +4,7 @@ import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,7 +13,9 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -150,6 +153,21 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 } catch (IOException ex) {
                     errorLogConsole.append("Не удалось проверить файл начального вектора. " +
                             "Убедитесь, что путь указан верно.\n");
+                    success = false;
+                }
+            }
+
+            if (!testFilesDirectoryTextField.getText().equals("")) {
+                try {
+                    if (Files.walk(Path.of(testFilesDirectoryTextField.getText()))
+                            .noneMatch(Files::isRegularFile)) {
+                        errorLogConsole.append("Указанная директория с файлами для отправки " +
+                                "не содержит ни одного файла.\n");
+                        success = false;
+                    }
+                } catch (IOException ex) {
+                    errorLogConsole.append(
+                            "Не удалось открыть директорию с файлами для отправки.\n");
                     success = false;
                 }
             }

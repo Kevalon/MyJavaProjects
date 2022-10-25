@@ -165,9 +165,7 @@ public class Sender implements Runnable {
         }
 
         File file = fileToSendPath.toFile();
-        try (
-                InputStream fileInputStream = new FileInputStream(file)
-        ) {
+        try (InputStream fileInputStream = new FileInputStream(file)) {
             String filename = filePath.getFileName().toString();
             logConsole.append("Отправляю файл " + filename + "\n");
             dataOut.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
@@ -201,23 +199,10 @@ public class Sender implements Runnable {
 
     private void loadTesting() {
         while (!Thread.currentThread().isInterrupted()) {
-            if (!settings.containsKey("testFilesDirectory")) {
-                logConsole.append("Не найдена директория отправляемых файлов. " +
-                        "Пожалуйста, укажите ее в настройках.\n");
-                break;
-            }
             try {
-                if (Files.lines(Path.of(settings.get("testFilesDirectory"))).map(File::new)
-                        .noneMatch(File::isFile)) {
-                    logConsole.append("Указанная директория с файлами для отправки " +
-                            "не содержит ни одного файла.\n");
-                    break;
-                }
-
                 List<Path> filesToSend =
-                        Files.lines(Path.of(settings.get("testFilesDirectory")))
-                                .map(Path::of)
-                                .filter(p -> !Files.isDirectory(p))
+                        Files.walk(Path.of(settings.get("testFilesDirectory")))
+                                .filter(Files::isRegularFile)
                                 .collect(Collectors.toList());
                 Cipher cipher;
                 if (encrypt) {
@@ -261,18 +246,12 @@ public class Sender implements Runnable {
 
         try {
             sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8));
-            System.out.println("ENC_PAR: " +
-                    Arrays.toString("ENC_PAR".getBytes(StandardCharsets.UTF_8)));
             sendData(mode);
             if (encrypt) {
                 sendData(1);
             } else {
                 sendData(0);
             }
-
-            System.out.println(Arrays.toString(parametersDto.getKey()));
-            System.out.println(Arrays.toString(parametersDto.getIV()));
-            System.out.println((int) parametersDto.getCipherSystem().charAt(0));
             if (encrypt) {
                 sendData(rsaInstance.encrypt(parametersDto.getKey()));
                 sendData(rsaInstance.encrypt(parametersDto.getIV()));
@@ -284,7 +263,6 @@ public class Sender implements Runnable {
         } catch (GeneralSecurityException e) {
             logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
         }
-        logConsole.append("");
 
         if (mode == 0) {
             loadTesting();

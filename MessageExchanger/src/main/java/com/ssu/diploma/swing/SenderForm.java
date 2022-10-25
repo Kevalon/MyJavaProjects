@@ -57,6 +57,12 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         startButton.addActionListener(e -> {
+            String test = senderSettingsForm.getSettings().get("testFilesDirectory");
+            if (test == null || test.equals("")) {
+                logConsole.append(
+                        "Пожалуйста, укажите в настройках директорию с отправляемыми файлами.\n");
+                return;
+            }
             senderThread = new Thread(
                     new Sender(
                             senderSettingsForm.getSettings(),
@@ -72,6 +78,10 @@ public class SenderForm extends javax.swing.JFrame {
         });
 
         stopButton.addActionListener(e -> {
+            if (senderThread == null) {
+                logConsole.append("Отправитель не запущен.\n");
+                return;
+            }
             senderThread.interrupt();
             logConsole.append("Отправитель успешно остановлен.\n");
             // чистит все внутренние каталоги с зашифрованными файлами.

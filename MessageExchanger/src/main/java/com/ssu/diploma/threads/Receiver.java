@@ -48,7 +48,8 @@ public class Receiver implements Runnable {
             throw e;
         }
         clientSocket = ss.accept();
-        logConsole.append("Клиент " + clientSocket.getInetAddress() + " успешно подключился.\n");
+        logConsole.append(
+                "Отправитель " + clientSocket.getInetAddress() + " успешно подключился.\n");
 
         try {
             out = new PrintWriter(clientSocket.getOutputStream(), true);
