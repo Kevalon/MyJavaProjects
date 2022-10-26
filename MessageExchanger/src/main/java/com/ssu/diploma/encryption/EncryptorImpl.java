@@ -29,7 +29,7 @@ public class EncryptorImpl implements Encryptor {
     //    "AES" or "GOST3412-2015"
     public final String systemName;
     public static final byte pIVLen = 8;
-    public final int buffSize = 8 * 1024;
+    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
 
     static {
         Security.setProperty("crypto.policy", "unlimited");
@@ -98,14 +98,23 @@ public class EncryptorImpl implements Encryptor {
                 FileInputStream input = new FileInputStream(source);
                 FileOutputStream output = new FileOutputStream(destination)
         ) {
-            byte[] buffer = new byte[buffSize];
-            int count = input.read(buffer);
-            while (count >= 0) {
+            long filesize = Files.size(Path.of(source));
+            byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
+            int count;
+            int check = 0;
+            while (filesize > 0 &&
+                    (count = input.read(
+                            buffer,
+                            0,
+                            (int) Math.min(buffer.length, filesize)
+                    )) > 0) {
                 output.write(cipher.update(buffer, 0, count));
-                count = input.read(buffer);
+                check++;
+                System.out.println(check);
+                filesize -= count;
             }
+            System.out.println("did final");
             output.write(cipher.doFinal());
-            output.flush();
         }
     }
 

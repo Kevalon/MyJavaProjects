@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Receiver implements Runnable {
-    private static final int RESOURCE_BUFFER_SIZE = 8 * 1024;
+    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
 
     private final Map<String, String> settings;
     private boolean encrypt;
@@ -52,8 +52,8 @@ public class Receiver implements Runnable {
                 "Отправитель " + clientSocket.getInetAddress() + " успешно подключился.\n");
 
         try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new DataInputStream(clientSocket.getInputStream());
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
         } catch (IOException exception) {
             logConsole.append("Не удалось открыть потоки на чтение и запись для отправителя.\n");
             throw exception;
@@ -82,7 +82,6 @@ public class Receiver implements Runnable {
     private EncryptionParametersDto setUpEncParameters() throws IOException,
             GeneralSecurityException {
         try {
-
             byte[] key = receiveByteArray();
             byte[] IV = receiveByteArray();
             char cipherFirstLetter = (char) in.readInt();
@@ -111,16 +110,17 @@ public class Receiver implements Runnable {
 
     private void receiveOneFile(Cipher cipher) throws IOException {
         String filename = new String(receiveByteArray());
-        String receivePath = encrypt ? "./Enc" + filename :
+        System.out.println("filename received");
+        String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
                 settings.get("receivedFilesDirectory") + "/" + filename;
+        long size = in.readLong();
+        byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
+        int count;
         try (FileOutputStream fileOutputStream = new FileOutputStream(receivePath)) {
-            long size = in.readLong();
-            byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
-            int bytes;
             while (size > 0 &&
-                    (bytes = in.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
-                fileOutputStream.write(buffer, 0, bytes);
-                size -= bytes;
+                    (count = in.read(buffer, 0, (int) Math.min(buffer.length, size))) > 0) {
+                fileOutputStream.write(buffer, 0, count);
+                size -= count;
             }
         }
 
@@ -134,10 +134,13 @@ public class Receiver implements Runnable {
                 logConsole.append("Ошибка расшифрования файла " + filename + "\n");
             }
         }
+        System.out.println("decrypted");
 
-        out.write("Received");
+        out.println("Received");
+        logConsole.append(String.format("Получен файл %s\n", filename));
+
         if (encrypt) {
-            out.write(DigestUtils.md5Hex(Files.newInputStream(
+            out.println(DigestUtils.md5Hex(Files.newInputStream(
                     Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
         }
     }
@@ -198,6 +201,7 @@ public class Receiver implements Runnable {
             mode = in.readInt();
             encrypt = in.readInt() == 1;
             if (encrypt) {
+                Files.createDirectory(Path.of(".", "encryptedReceived"));
                 encParameters = setUpEncParameters();
                 encryptor = new EncryptorImpl(encParameters.getCipherSystem());
             }
@@ -219,7 +223,7 @@ public class Receiver implements Runnable {
 
         try {
             close();
-            logConsole.append("Получатель успешно закончил свою работу и остановился.");
+            logConsole.append("Получатель успешно закончил свою работу и остановился.\n");
         } catch (IOException e) {
             logConsole.append("Ошибка закрытия соединения. Возможна потеря данных.\n");
         }

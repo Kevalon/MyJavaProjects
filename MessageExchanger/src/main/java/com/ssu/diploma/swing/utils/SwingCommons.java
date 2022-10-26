@@ -11,7 +11,7 @@ import javax.swing.JTextField;
 
 public class SwingCommons {
 
-    public static void browseDirAction(JTextField destination, JFrame frame) {
+    public static synchronized void browseDirAction(JTextField destination, JFrame frame) {
         JFileChooser dirFileChooser = new JFileChooser();
         dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         dirFileChooser.setDialogTitle("Выбор директории");
@@ -28,7 +28,7 @@ public class SwingCommons {
         }
     }
 
-    public static void browseFileAction(JTextField destination, JFrame frame) {
+    public static synchronized void browseFileAction(JTextField destination, JFrame frame) {
         JFileChooser fileFileChooser = new JFileChooser();
         fileFileChooser.setDialogTitle("Выбор файла");
         int res = fileFileChooser.showOpenDialog(frame);
@@ -44,7 +44,7 @@ public class SwingCommons {
         }
     }
 
-    public static byte[] getBytesFromURL(URL resource) {
+    public static synchronized byte[] getBytesFromURL(URL resource) {
         try (InputStream in = resource.openStream()) {
             return in.readAllBytes();
         } catch (IOException exception) {

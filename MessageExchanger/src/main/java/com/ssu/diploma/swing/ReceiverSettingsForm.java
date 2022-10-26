@@ -28,6 +28,8 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
     public ReceiverSettingsForm() {
 
         settings.put("serverPort", "8081");
+        // todo: remove after fix
+        settings.put("receivedFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\receive");
 
         choosePathButton1.addActionListener(e -> {
             SwingCommons.browseDirAction(receivedFilesDirectoryTextField, this);

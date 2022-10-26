@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,7 +22,6 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,14 +30,14 @@ import javax.swing.JTextArea;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Sender implements Runnable {
-    private static final int RESOURCE_BUFFER_SIZE = 8 * 1024;
+    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
 
     private final Map<String, String> settings;
     private final Encryptor encryptor;
     private final JTextArea logConsole;
     private Socket clientSocket;
-    private DataOutputStream dataOut;
-    private BufferedReader inReader;
+    private DataOutputStream out;
+    private BufferedReader in;
     private final RSA rsaInstance = new RSA();
     private final int mode; // 0, 1
     private final boolean encrypt;
@@ -65,25 +63,26 @@ public class Sender implements Runnable {
         }
 
         try {
-            dataOut =
-                    new DataOutputStream(
-                            new BufferedOutputStream(clientSocket.getOutputStream()));
-            inReader =
-                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
         } catch (IOException e) {
             logConsole.append("Не удалось установить поточное соединение с получателем.\n");
             throw e;
         }
+
+        if (encrypt) {
+            Files.createDirectory(Path.of(".", "encryptedSent"));
+        }
     }
 
     private void close() throws IOException {
-        if (dataOut != null) {
-            dataOut.close();
-            dataOut = null;
+        if (out != null) {
+            out.close();
+            out = null;
         }
-        if (inReader != null) {
-            inReader.close();
-            inReader = null;
+        if (in != null) {
+            in.close();
+            in = null;
         }
         if (clientSocket != null) {
             clientSocket.close();
@@ -124,16 +123,16 @@ public class Sender implements Runnable {
     private void sendData(Object data) throws IOException {
         if (data instanceof byte[]) {
             byte[] newData = (byte[]) data;
-            dataOut.writeInt(newData.length);
-            dataOut.flush();
-            dataOut.write(newData);
-            dataOut.flush();
+            out.writeInt(newData.length);
+            out.flush();
+            out.write(newData);
+            out.flush();
         } else if (data instanceof Integer) {
-            dataOut.writeInt((int) data);
-            dataOut.flush();
+            out.writeInt((int) data);
+            out.flush();
         } else if (data instanceof Character) {
-            dataOut.writeInt((char) data);
-            dataOut.flush();
+            out.writeInt((char) data);
+            out.flush();
         }
     }
 
@@ -150,7 +149,8 @@ public class Sender implements Runnable {
                 return;
             }
             start = Instant.now();
-            fileToSendPath = Path.of("./Enc" + filePath.getFileName().toString());
+            fileToSendPath =
+                    Path.of("./encryptedSent" + filePath.getFileName().toString() + ".enc");
             try {
                 encryptor.encrypt(
                         filePath.toString(),
@@ -165,35 +165,40 @@ public class Sender implements Runnable {
         }
 
         File file = fileToSendPath.toFile();
+        String filename = filePath.getFileName().toString();
+        logConsole.append("Отправляю файл " + filename + "\n");
         try (InputStream fileInputStream = new FileInputStream(file)) {
-            String filename = filePath.getFileName().toString();
-            logConsole.append("Отправляю файл " + filename + "\n");
-            dataOut.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
-            dataOut.flush();
-            dataOut.write(filename.getBytes(StandardCharsets.UTF_8));
-            dataOut.flush();
+            out.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
+            out.flush();
+            out.write(filename.getBytes(StandardCharsets.UTF_8));
+            out.flush();
 
             int count;
-            dataOut.writeLong(file.length());
+            out.writeLong(file.length());
+            out.flush();
             byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
-            while ((count = fileInputStream.read(buffer)) != -1) {
-                dataOut.write(buffer, 0, count);
-                dataOut.flush();
+            while ((count = fileInputStream.read(buffer)) > 0) {
+                out.write(buffer, 0, count);
+                out.flush();
             }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
 
-            inReader.readLine();
+        try {
+            in.readLine();
             end = Instant.now();
             logConsole.append("Файл доставлен до получателя. Время: " +
                     Duration.between(start, end).toSeconds() + " с.\n");
             if (encrypt) {
-                if (checkSumBefore.equals(inReader.readLine())) {
+                if (checkSumBefore.equals(in.readLine())) {
                     logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
                 } else {
                     logConsole.append("Хэш-сумма файлов не совпала. Были потери при отправке.\n");
                 }
             }
-        } catch (IOException exception) {
-            exception.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -216,6 +221,7 @@ public class Sender implements Runnable {
                 }
                 sendData(filesToSend.size());
                 filesToSend.forEach(p -> encryptAndSend(p, cipher));
+                break;
             } catch (IOException e) {
                 logConsole.append("Не удалось прочитать директорию с файлами для отправки.\n");
                 break;

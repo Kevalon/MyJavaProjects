@@ -60,6 +60,8 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         settings.put("cipherSystem", "AES");
         settings.put("keyPath", DEFAULT_KEY_LOCATION.toString());
         settings.put("IVPath", DEFAULT_IV_LOCATION.toString());
+        // todo: remove after fix
+        settings.put("testFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\send");
 
         choosePathButton1.addActionListener(e ->
                 SwingCommons.browseDirAction(testFilesDirectoryTextField, this));
