@@ -237,10 +237,14 @@ public class Sender implements Runnable {
                 } else {
                     cipher = null;
                 }
+
                 do {
                     sendData(filesToSend.size());
                     filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
                 } while (infinite);
+
+
+
                 break;
             } catch (IOException e) {
                 Utils.log(

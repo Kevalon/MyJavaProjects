@@ -15,7 +15,7 @@ import javax.swing.JTextField;
 public class Utils {
     public static final int RESOURCE_BUFFER_SIZE = 1024 * 1024;
 
-    public static synchronized void browseDirAction(JTextField destination, JFrame frame) {
+    public static synchronized int browseDirAction(JTextField destination, JFrame frame) {
         JFileChooser dirFileChooser = new JFileChooser();
         dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         dirFileChooser.setDialogTitle("Выбор директории");
@@ -30,6 +30,7 @@ public class Utils {
                 browseDirAction(destination, frame);
             }
         }
+        return res;
     }
 
     public static synchronized void browseFileAction(JTextField destination, JFrame frame) {

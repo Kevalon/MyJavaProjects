@@ -68,7 +68,8 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 Utils.browseFileAction(IVPathTextField, this));
 
         generateNewKeyButton.addActionListener(e -> {
-            Utils.browseDirAction(keyPathTextField, this);
+            int res = Utils.browseDirAction(keyPathTextField, this);
+            if (res == 1) return;
             keyPathTextField.setText(keyPathTextField.getText() + "\\key.txt");
 
             EncryptorImpl encryptor
@@ -86,7 +87,8 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         });
 
         generateNewIVButton.addActionListener(e -> {
-            Utils.browseDirAction(IVPathTextField, this);
+            int res = Utils.browseDirAction(IVPathTextField, this);
+            if (res == 1) return;
             IVPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
 
             EncryptorImpl encryptor
