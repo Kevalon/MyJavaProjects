@@ -117,7 +117,6 @@ public class Receiver implements Runnable {
 
     private void receiveOneFile(Cipher cipher, boolean infinite) throws IOException {
         String filename = new String(receiveByteArray());
-        System.out.println("filename received");
         String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
                 settings.get("receivedFilesDirectory") + "/" + filename;
         long size = in.readLong();
@@ -150,7 +149,7 @@ public class Receiver implements Runnable {
                 Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
     }
 
-    private void loadTesting(boolean infinite) {
+    private void loadTesting(boolean infinite) throws IOException {
         while (!Thread.currentThread().isInterrupted()) {
             if (!settings.containsKey("receivedFilesDirectory")) {
                 Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
@@ -182,11 +181,24 @@ public class Receiver implements Runnable {
                     Utils.log(logConsole, "Не удалось прочитать данные от отправителя.");
                 }
             } while (infinite);
+
+            if (encrypt) {
+                Files.walk(Path.of("./encryptedReceived/"))
+                        .filter(Files::isRegularFile)
+                        .forEach(path -> {
+                            try {
+                                Files.deleteIfExists(path);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+            }
+
             break;
         }
     }
 
-    private void infiniteTexting() {
+    private void infiniteTexting() throws IOException {
         while (!Thread.currentThread().isInterrupted()) {
             Utils.log(logConsole, "Установлен режим бесконечного обмена сообщениями.");
             loadTesting(true);
@@ -222,12 +234,17 @@ public class Receiver implements Runnable {
             return;
         }
 
-        if (mode == 0) {
-            loadTesting(false);
+        try {
+            if (mode == 0) {
+                loadTesting(false);
+            }
+            if (mode == 1) {
+                infiniteTexting();
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
-        if (mode == 1) {
-            infiniteTexting();
-        }
+
 
         try {
             close();

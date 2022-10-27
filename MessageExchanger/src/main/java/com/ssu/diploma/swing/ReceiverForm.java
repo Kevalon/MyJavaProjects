@@ -4,6 +4,9 @@ import com.ssu.diploma.swing.utils.Utils;
 import com.ssu.diploma.threads.Receiver;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -23,7 +26,6 @@ public class ReceiverForm extends javax.swing.JFrame {
         this.add(receiverPanel);
 
         startButton.addActionListener(e -> {
-            // clean all trash from previous launch
             String test = receiverSettingsForm.getSettings().get("receivedFilesDirectory");
             if (test == null || test.equals("")) {
                 Utils.log(
@@ -47,6 +49,21 @@ public class ReceiverForm extends javax.swing.JFrame {
             }
             receiverThread.interrupt();
             Utils.log(logConsole, "Получатель успешно остановлен.");
+
+            Path trash = Path.of("./encryptedReceived/");
+            try {
+                if (Files.list(trash).findAny().isPresent()) {
+                    Files.walk(trash).filter(Files::isRegularFile).forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException exception) {
+                            exception.printStackTrace();
+                        }
+                    });
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         });
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

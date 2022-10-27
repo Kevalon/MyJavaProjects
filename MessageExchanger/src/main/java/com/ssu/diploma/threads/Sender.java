@@ -24,9 +24,11 @@ import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -243,8 +245,17 @@ public class Sender implements Runnable {
                     filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
                 } while (infinite);
 
-
-
+                if (encrypt) {
+                    Files.walk(Path.of("./encryptedSent/"))
+                            .filter(Files::isRegularFile)
+                            .forEach(path -> {
+                                try {
+                                    Files.deleteIfExists(path);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                }
                 break;
             } catch (IOException e) {
                 Utils.log(

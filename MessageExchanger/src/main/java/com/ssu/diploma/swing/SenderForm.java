@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.IntStream;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -87,7 +89,22 @@ public class SenderForm extends javax.swing.JFrame {
             }
             senderThread.interrupt();
             Utils.log(logConsole, "Отправитель успешно остановлен.");
-            // чистит все внутренние каталоги с зашифрованными файлами.
+            if (linkEncryptionRadio.isSelected()) {
+                try {
+                    Files.walk(Path.of("./encryptedSent/"))
+                            .filter(Files::isRegularFile)
+                            .forEach(
+                                    path -> {
+                                        try {
+                                            Files.deleteIfExists(path);
+                                        } catch (IOException ex) {
+                                            ex.printStackTrace();
+                                        }
+                                    });
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
 
         });
 
