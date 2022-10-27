@@ -135,17 +135,13 @@ public class Receiver implements Runnable {
                 logConsole.append("Ошибка расшифрования файла " + filename + "\n");
             }
         }
-        System.out.println("decrypted");
 
         out.println("Received");
         if (!infinite) {
             logConsole.append(String.format("Получен файл %s\n", filename));
         }
-
-        if (encrypt) {
-            out.println(DigestUtils.sha256Hex(Files.newInputStream(
-                    Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
-        }
+        out.println(DigestUtils.sha256Hex(Files.newInputStream(
+                Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
     }
 
     private void loadTesting(boolean infinite) {

@@ -38,7 +38,7 @@ public class EncryptorImpl implements Encryptor {
     }
 
     public EncryptorImpl(String system) {
-        systemName = system;
+        systemName = system.charAt(0) == 'A' ? "AES" : "GOST3412-2015";
     }
 
     @Override

@@ -138,20 +138,23 @@ public class Sender implements Runnable {
 
     private void encryptAndSend(Path filePath, Cipher cipher, boolean infinite) {
         Instant start, end;
-        String checkSumBefore = "";
+        String checkSumBefore;
         Path fileToSendPath = filePath;
+
+        try (InputStream is = Files.newInputStream(filePath)) {
+            checkSumBefore = DigestUtils.sha256Hex(is);
+        } catch (IOException e) {
+            logConsole.append(
+                    "Не удалось открыть поток на чтение для " + filePath.getFileName() + "\n");
+            return;
+        }
+
         if (encrypt) {
-            try (InputStream is = Files.newInputStream(filePath)) {
-                checkSumBefore = DigestUtils.sha256Hex(is);
-            } catch (IOException e) {
-                logConsole.append(
-                        "Не удалось открыть поток на чтение для " + filePath.getFileName() + "\n");
-                return;
-            }
             start = Instant.now();
             fileToSendPath =
                     Path.of("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
             try {
+                logConsole.append(String.format("Зашифровываю файл %s\n", filePath.getFileName()));
                 encryptor.encrypt(
                         filePath.toString(),
                         fileToSendPath.toString(),
@@ -193,13 +196,11 @@ public class Sender implements Runnable {
                 end = Instant.now();
                 logConsole.append("Файл доставлен до получателя. Время: " +
                         Duration.between(start, end).toMillis() + " мс.\n");
-                if (encrypt) {
-                    if (checkSumBefore.equals(in.readLine())) {
-                        logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
-                    } else {
-                        logConsole.append(
-                                "Хэш-сумма файлов не совпала. Были потери при отправке.\n");
-                    }
+                if (checkSumBefore.equals(in.readLine())) {
+                    logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
+                } else {
+                    logConsole.append(
+                            "Хэш-сумма файлов не совпала. Были потери при отправке.\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -233,6 +234,7 @@ public class Sender implements Runnable {
                 logConsole.append("Не удалось прочитать директорию с файлами для отправки.\n");
                 break;
             } catch (Exception ex) {
+                ex.printStackTrace();
                 logConsole.append("Произошла внутренняя ошибка отправки файла.\n");
                 break;
             }
