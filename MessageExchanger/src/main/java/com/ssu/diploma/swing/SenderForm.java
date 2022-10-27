@@ -1,5 +1,6 @@
 package com.ssu.diploma.swing;
 
+import com.ssu.diploma.swing.utils.Utils;
 import com.ssu.diploma.threads.Sender;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -59,8 +60,10 @@ public class SenderForm extends javax.swing.JFrame {
         startButton.addActionListener(e -> {
             String test = senderSettingsForm.getSettings().get("testFilesDirectory");
             if (test == null || test.equals("")) {
-                logConsole.append(
-                        "Пожалуйста, укажите в настройках директорию с отправляемыми файлами.\n");
+                Utils.log(
+                        logConsole,
+                        "Пожалуйста, укажите в настройках директорию с отправляемыми файлами."
+                );
                 return;
             }
             senderThread = new Thread(
@@ -79,11 +82,11 @@ public class SenderForm extends javax.swing.JFrame {
 
         stopButton.addActionListener(e -> {
             if (senderThread == null) {
-                logConsole.append("Отправитель не запущен.\n");
+                Utils.log(logConsole, "Отправитель не запущен.");
                 return;
             }
             senderThread.interrupt();
-            logConsole.append("Отправитель успешно остановлен.\n");
+            Utils.log(logConsole, "Отправитель успешно остановлен.");
             // чистит все внутренние каталоги с зашифрованными файлами.
 
         });

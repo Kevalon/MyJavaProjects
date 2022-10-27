@@ -1,5 +1,6 @@
 package com.ssu.diploma.swing;
 
+import com.ssu.diploma.swing.utils.Utils;
 import com.ssu.diploma.threads.Receiver;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -25,8 +26,9 @@ public class ReceiverForm extends javax.swing.JFrame {
             // clean all trash from previous launch
             String test = receiverSettingsForm.getSettings().get("receivedFilesDirectory");
             if (test == null || test.equals("")) {
-                logConsole.append(
-                        "Пожалуйста, выберите директорию для принимаемых файлов в настройках.\n");
+                Utils.log(
+                        logConsole,
+                        "Пожалуйста, выберите директорию для принимаемых файлов в настройках.");
                 return;
             }
             receiverThread = new Thread(
@@ -40,11 +42,11 @@ public class ReceiverForm extends javax.swing.JFrame {
 
         stopButton.addActionListener(e -> {
             if (receiverThread == null) {
-                logConsole.append("Получатель не запущен.\n");
+                Utils.log(logConsole, "Получатель не запущен.");
                 return;
             }
             receiverThread.interrupt();
-            logConsole.append("Получатель успешно остановлен.\n");
+            Utils.log(logConsole, "Получатель успешно остановлен.");
         });
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

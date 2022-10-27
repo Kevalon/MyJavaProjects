@@ -1,8 +1,8 @@
 package com.ssu.diploma.encryption;
 
-import static com.ssu.diploma.swing.utils.SwingCommons.RESOURCE_BUFFER_SIZE;
+import static com.ssu.diploma.swing.utils.Utils.RESOURCE_BUFFER_SIZE;
 
-import com.ssu.diploma.swing.utils.SwingCommons;
+import com.ssu.diploma.swing.utils.Utils;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -61,12 +61,12 @@ public class EncryptorImpl implements Encryptor {
         Cipher cipher = Cipher.getInstance(systemName, "BC");
         byte[] IV, keyByte;
         try {
-            keyByte = SwingCommons.getBytesFromURL(new URL(keyPath));
+            keyByte = Utils.getBytesFromURL(new URL(keyPath));
         } catch (MalformedURLException exception) {
             keyByte = Files.readAllBytes(Path.of(keyPath));
         }
         try {
-            IV = SwingCommons.getBytesFromURL(new URL(IVPath));
+            IV = Utils.getBytesFromURL(new URL(IVPath));
         } catch (MalformedURLException exception) {
             IV = Files.readAllBytes(Path.of(IVPath));
         }

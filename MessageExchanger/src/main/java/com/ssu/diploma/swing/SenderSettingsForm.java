@@ -1,10 +1,9 @@
 package com.ssu.diploma.swing;
 
 import com.ssu.diploma.encryption.EncryptorImpl;
-import com.ssu.diploma.swing.utils.SwingCommons;
+import com.ssu.diploma.swing.utils.Utils;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,9 +12,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -64,14 +61,14 @@ public class SenderSettingsForm extends javax.swing.JFrame {
         settings.put("testFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\send");
 
         choosePathButton1.addActionListener(e ->
-                SwingCommons.browseDirAction(testFilesDirectoryTextField, this));
+                Utils.browseDirAction(testFilesDirectoryTextField, this));
         choosePathButton3.addActionListener(e ->
-                SwingCommons.browseFileAction(keyPathTextField, this));
+                Utils.browseFileAction(keyPathTextField, this));
         choosePathButton4.addActionListener(e ->
-                SwingCommons.browseFileAction(IVPathTextField, this));
+                Utils.browseFileAction(IVPathTextField, this));
 
         generateNewKeyButton.addActionListener(e -> {
-            SwingCommons.browseDirAction(keyPathTextField, this);
+            Utils.browseDirAction(keyPathTextField, this);
             keyPathTextField.setText(keyPathTextField.getText() + "\\key.txt");
 
             EncryptorImpl encryptor
@@ -80,14 +77,16 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 byte[] key = encryptor.generateKey();
                 Files.write(Path.of(keyPathTextField.getText()), key);
             } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
-                errorLogConsole.append("Ошибка генерации ключа.\n");
+                Utils.log(errorLogConsole, "Ошибка генерации ключа.");
             } catch (IOException ex) {
-                errorLogConsole.append("Не удалось найти указанный для генерации путь.\n");
+                Utils.log(
+                        errorLogConsole,
+                        "Не удалось найти указанный для генерации путь.");
             }
         });
 
         generateNewIVButton.addActionListener(e -> {
-            SwingCommons.browseDirAction(IVPathTextField, this);
+            Utils.browseDirAction(IVPathTextField, this);
             IVPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
 
             EncryptorImpl encryptor
@@ -96,7 +95,7 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 byte[] IV = encryptor.generateIV();
                 Files.write(Path.of(IVPathTextField.getText()), IV);
             } catch (IOException ex) {
-                errorLogConsole.append("Не удалось найти указанный для генерации путь.\n");
+                Utils.log(errorLogConsole, "Не удалось найти указанный для генерации путь.");
             }
         });
 
@@ -111,24 +110,27 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 try {
                     long size;
                     try {
-                        size = SwingCommons.getBytesFromURL(
+                        size = Utils.getBytesFromURL(
                                 new URL(keyPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Path.of(keyPathTextField.getText()));
                     }
 
                     if (size != EncryptorImpl.KEY_LENGTH / 8) {
-                        errorLogConsole.append(
+                        Utils.log(
+                                errorLogConsole,
                                 String.format("Файл ключа имеет некорректную длину. " +
-                                                "Ключ должен быть = %d битам\n",
+                                                "Ключ должен быть = %d битам.",
                                         EncryptorImpl.KEY_LENGTH));
                         success = false;
                     } else {
                         settings.put("keyPath", keyPathTextField.getText());
                     }
                 } catch (IOException ex) {
-                    errorLogConsole.append("Не удалось проверить файл ключа. " +
-                            "Убедитесь, что путь указан верно.\n");
+                    Utils.log(
+                            errorLogConsole,
+                            "Не удалось проверить файл ключа. " +
+                                    "Убедитесь, что путь указан верно.");
                     success = false;
                 }
             }
@@ -137,24 +139,27 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 try {
                     long size;
                     try {
-                        size = SwingCommons.getBytesFromURL(
+                        size = Utils.getBytesFromURL(
                                 new URL(IVPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Path.of(IVPathTextField.getText()));
                     }
 
                     if (size != EncryptorImpl.pIVLen) {
-                        errorLogConsole.append(
+                        Utils.log(
+                                errorLogConsole,
                                 String.format("Файл вектора имеет некорректную " +
-                                                "длину. Вектор должен быть = %d битам\n",
+                                                "длину. Вектор должен быть = %d битам.",
                                         EncryptorImpl.pIVLen));
                         success = false;
                     } else {
                         settings.put("IVPath", IVPathTextField.getText());
                     }
                 } catch (IOException ex) {
-                    errorLogConsole.append("Не удалось проверить файл начального вектора. " +
-                            "Убедитесь, что путь указан верно.\n");
+                    Utils.log(
+                            errorLogConsole,
+                            "Не удалось проверить файл начального вектора. " +
+                                    "Убедитесь, что путь указан верно.");
                     success = false;
                 }
             }
@@ -163,19 +168,22 @@ public class SenderSettingsForm extends javax.swing.JFrame {
                 try {
                     if (Files.walk(Path.of(testFilesDirectoryTextField.getText()))
                             .noneMatch(Files::isRegularFile)) {
-                        errorLogConsole.append("Указанная директория с файлами для отправки " +
-                                "не содержит ни одного файла.\n");
+                        Utils.log(
+                                errorLogConsole,
+                                "Указанная директория с файлами для отправки " +
+                                        "не содержит ни одного файла.");
                         success = false;
                     }
                 } catch (IOException ex) {
-                    errorLogConsole.append(
-                            "Не удалось открыть директорию с файлами для отправки.\n");
+                    Utils.log(
+                            errorLogConsole,
+                            "Не удалось открыть директорию с файлами для отправки.");
                     success = false;
                 }
             }
 
             if (success) {
-                errorLogConsole.append("Все изменения были успешно применены.\n");
+                Utils.log(errorLogConsole, "Все изменения были успешно применены.");
             }
         });
     }

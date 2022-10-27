@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class SwingCommons {
-    public static final int RESOURCE_BUFFER_SIZE = 1 * 1024 * 1024;
+public class Utils {
+    public static final int RESOURCE_BUFFER_SIZE = 1024 * 1024;
 
     public static synchronized void browseDirAction(JTextField destination, JFrame frame) {
         JFileChooser dirFileChooser = new JFileChooser();
@@ -52,5 +55,13 @@ public class SwingCommons {
             exception.printStackTrace();
             return null;
         }
+    }
+
+    public static void log(JTextArea logConsole, String message) {
+        logConsole.append(String.format(
+                "%s%s\n",
+                '[' + LocalTime.now().truncatedTo(ChronoUnit.SECONDS).toString() + "] ",
+                message
+        ));
     }
 }

@@ -1,12 +1,12 @@
 package com.ssu.diploma.threads;
 
-import static com.ssu.diploma.swing.utils.SwingCommons.RESOURCE_BUFFER_SIZE;
+import static com.ssu.diploma.swing.utils.Utils.RESOURCE_BUFFER_SIZE;
 
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
 import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.encryption.RSA;
-import com.ssu.diploma.swing.utils.SwingCommons;
+import com.ssu.diploma.swing.utils.Utils;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -56,9 +56,11 @@ public class Sender implements Runnable {
                     settings.get("receiverAddress"),
                     Integer.parseInt(settings.get("receiverPort"))
             );
-            logConsole.append("Соединение с получателем установлено.\n");
+            Utils.log(logConsole, "Соединение с получателем установлено.");
         } catch (IOException e) {
-            logConsole.append("Не удалось подключиться к получателю. Проверь адрес и порт.\n");
+            Utils.log(
+                    logConsole,
+                    "Не удалось подключиться к получателю. Проверь адрес и порт.");
             throw e;
         }
 
@@ -66,7 +68,7 @@ public class Sender implements Runnable {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
         } catch (IOException e) {
-            logConsole.append("Не удалось установить поточное соединение с получателем.\n");
+            Utils.log(logConsole, "Не удалось установить поточное соединение с получателем.");
             throw e;
         }
 
@@ -94,22 +96,22 @@ public class Sender implements Runnable {
         byte[] key;
         byte[] IV;
         try {
-            key = SwingCommons.getBytesFromURL(new URL(settings.get("keyPath")));
+            key = Utils.getBytesFromURL(new URL(settings.get("keyPath")));
         } catch (MalformedURLException exception) {
             try {
                 key = Files.readAllBytes(Path.of(settings.get("keyPath")));
             } catch (IOException e) {
-                logConsole.append("Ошибка чтения файла ключа.\n");
+                Utils.log(logConsole, "Ошибка чтения файла ключа.");
                 throw e;
             }
         }
         try {
-            IV = SwingCommons.getBytesFromURL(new URL(settings.get("IVPath")));
+            IV = Utils.getBytesFromURL(new URL(settings.get("IVPath")));
         } catch (MalformedURLException exception) {
             try {
                 IV = Files.readAllBytes(Path.of(settings.get("IVPath")));
             } catch (IOException e) {
-                logConsole.append("Ошибка чтения файла начального вектора.\n");
+                Utils.log(logConsole, "Ошибка чтения файла начального вектора.");
                 throw e;
             }
         }
@@ -144,8 +146,13 @@ public class Sender implements Runnable {
         try (InputStream is = Files.newInputStream(filePath)) {
             checkSumBefore = DigestUtils.sha256Hex(is);
         } catch (IOException e) {
-            logConsole.append(
-                    "Не удалось открыть поток на чтение для " + filePath.getFileName() + "\n");
+            Utils.log(
+                    logConsole,
+                    String.format(
+                            "Не удалось открыть поток на чтение для %s",
+                            filePath.getFileName()
+                    )
+            );
             return;
         }
 
@@ -154,13 +161,17 @@ public class Sender implements Runnable {
             fileToSendPath =
                     Path.of("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
             try {
-                logConsole.append(String.format("Зашифровываю файл %s\n", filePath.getFileName()));
+                Utils.log(
+                        logConsole,
+                        String.format("Зашифровываю файл %s", filePath.getFileName()));
                 encryptor.encrypt(
                         filePath.toString(),
                         fileToSendPath.toString(),
                         cipher);
             } catch (Exception e) {
-                logConsole.append("Не удалось зашифровать файл " + filePath.getFileName() + "\n");
+                Utils.log(
+                        logConsole,
+                        String.format("Не удалось зашифровать файл %s", filePath.getFileName()));
                 return;
             }
         } else {
@@ -170,7 +181,7 @@ public class Sender implements Runnable {
         File file = fileToSendPath.toFile();
         String filename = filePath.getFileName().toString();
         if (!infinite) {
-            logConsole.append("Отправляю файл " + filename + "\n");
+            Utils.log(logConsole, String.format("Отправляю файл %s", filename));
         }
         try (InputStream fileInputStream = new FileInputStream(file)) {
             out.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
@@ -194,13 +205,14 @@ public class Sender implements Runnable {
             try {
                 in.readLine();
                 end = Instant.now();
-                logConsole.append("Файл доставлен до получателя. Время: " +
-                        Duration.between(start, end).toMillis() + " мс.\n");
+                Utils.log(logConsole, "Файл доставлен до получателя. Время: " +
+                        Duration.between(start, end).toMillis() + " мс.");
                 if (checkSumBefore.equals(in.readLine())) {
-                    logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
+                    Utils.log(logConsole, "Хэш-сумма файлов совпала. Потерь нет.");
                 } else {
-                    logConsole.append(
-                            "Хэш-сумма файлов не совпала. Были потери при отправке.\n");
+                    Utils.log(
+                            logConsole,
+                            "Хэш-сумма файлов не совпала. Были потери при отправке.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -231,11 +243,13 @@ public class Sender implements Runnable {
                 } while (infinite);
                 break;
             } catch (IOException e) {
-                logConsole.append("Не удалось прочитать директорию с файлами для отправки.\n");
+                Utils.log(
+                        logConsole,
+                        "Не удалось прочитать директорию с файлами для отправки.");
                 break;
             } catch (Exception ex) {
                 ex.printStackTrace();
-                logConsole.append("Произошла внутренняя ошибка отправки файла.\n");
+                Utils.log(logConsole, "Произошла внутренняя ошибка отправки файла.");
                 break;
             }
         }
@@ -243,7 +257,8 @@ public class Sender implements Runnable {
 
     private void infiniteTexting() {
         while (!Thread.currentThread().isInterrupted()) {
-            logConsole.append("Бесконечная отправка началась. Для отмены нажмите 'Стоп'.\n");
+            Utils.log(logConsole,
+                    "Бесконечная отправка началась. Для отмены нажмите 'Стоп'.");
             loadTesting(true);
         }
     }
@@ -276,10 +291,12 @@ public class Sender implements Runnable {
                 sendData(parametersDto.getCipherSystem().charAt(0));
             }
         } catch (IOException exception) {
-            logConsole.append("Не получилось отправить параметры шифрования получателю.\n");
+            Utils.log(logConsole,
+                    "Не получилось отправить параметры шифрования получателю.");
             return;
         } catch (GeneralSecurityException e) {
-            logConsole.append("Не удалось зашифровать данные с помощью RSA для отправки.\n");
+            Utils.log(logConsole,
+                    "Не удалось зашифровать данные с помощью RSA для отправки.");
         }
 
         if (mode == 0) {
@@ -291,9 +308,10 @@ public class Sender implements Runnable {
 
         try {
             close();
-            logConsole.append("Отправитель закончил свою работу и отключился от получателя.\n");
+            Utils.log(logConsole,
+                    "Отправитель закончил свою работу и отключился от получателя.");
         } catch (IOException e) {
-            logConsole.append("Ошибка закрытия соединения. Возможна потеря данных.\n");
+            Utils.log(logConsole, "Ошибка закрытия соединения. Возможна потеря данных.");
         }
     }
 }

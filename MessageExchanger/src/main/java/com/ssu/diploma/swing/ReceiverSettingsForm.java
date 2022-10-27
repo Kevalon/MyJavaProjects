@@ -1,6 +1,6 @@
 package com.ssu.diploma.swing;
 
-import com.ssu.diploma.swing.utils.SwingCommons;
+import com.ssu.diploma.swing.utils.Utils;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
         settings.put("receivedFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\receive");
 
         choosePathButton1.addActionListener(e -> {
-            SwingCommons.browseDirAction(receivedFilesDirectoryTextField, this);
+            Utils.browseDirAction(receivedFilesDirectoryTextField, this);
         });
 
         applyButton.addActionListener(e -> {
@@ -43,12 +43,17 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
                     settings.put("receivedFilesDirectory",
                             receivedFilesDirectoryTextField.getText());
                 } else {
-                    errorLogConsole.append(
-                            "Не получилось проверить указанную директорию для файлов.\n");
+                    Utils.log(
+                            errorLogConsole,
+                            "Не получилось проверить указанную директорию для файлов."
+                    );
                     return;
                 }
             }
-            errorLogConsole.append("Все изменения были успешно применены.\n");
+            Utils.log(
+                    errorLogConsole,
+                    "Все изменения были успешно применены."
+            );
         });
     }
 
