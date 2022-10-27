@@ -24,6 +24,9 @@ buildNumber.properties
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+# encryption files
+*.enc
+
 # Package Files #
 *.jar
 *.war
