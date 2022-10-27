@@ -1,5 +1,7 @@
 package com.ssu.diploma.threads;
 
+import static com.ssu.diploma.swing.utils.SwingCommons.RESOURCE_BUFFER_SIZE;
+
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
 import com.ssu.diploma.encryption.EncryptorImpl;
@@ -19,7 +21,6 @@ import javax.swing.JTextArea;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Receiver implements Runnable {
-    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
 
     private final Map<String, String> settings;
     private boolean encrypt;
@@ -108,7 +109,7 @@ public class Receiver implements Runnable {
         throw new IOException();
     }
 
-    private void receiveOneFile(Cipher cipher) throws IOException {
+    private void receiveOneFile(Cipher cipher, boolean infinite) throws IOException {
         String filename = new String(receiveByteArray());
         System.out.println("filename received");
         String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
@@ -137,7 +138,9 @@ public class Receiver implements Runnable {
         System.out.println("decrypted");
 
         out.println("Received");
-        logConsole.append(String.format("Получен файл %s\n", filename));
+        if (!infinite) {
+            logConsole.append(String.format("Получен файл %s\n", filename));
+        }
 
         if (encrypt) {
             out.println(DigestUtils.md5Hex(Files.newInputStream(
@@ -145,7 +148,7 @@ public class Receiver implements Runnable {
         }
     }
 
-    private void loadTesting() {
+    private void loadTesting(boolean infinite) {
         while (!Thread.currentThread().isInterrupted()) {
             if (!settings.containsKey("receivedFilesDirectory")) {
                 logConsole.append("Не найдена директория для получаемых файлов. " +
@@ -167,22 +170,24 @@ public class Receiver implements Runnable {
             } else {
                 cipher = null;
             }
-
-            try {
-                int fileCount = in.readInt();
-                for (int i = 0; i < fileCount; i++) {
-                    receiveOneFile(cipher);
+            do {
+                try {
+                    int fileCount = in.readInt();
+                    for (int i = 0; i < fileCount; i++) {
+                        receiveOneFile(cipher, infinite);
+                    }
+                } catch (IOException e) {
+                    logConsole.append("Не удалось прочитать данные от отправителя.\n");
                 }
-            } catch (IOException e) {
-                logConsole.append("Не удалось прочитать данные от отправителя.\n");
-                return;
-            }
+            } while (infinite);
+            break;
         }
     }
 
     private void infiniteTexting() {
         while (!Thread.currentThread().isInterrupted()) {
-
+            logConsole.append("Установлен режим бесконечного обмена сообщениями.\n");
+            loadTesting(true);
         }
     }
 
@@ -215,7 +220,7 @@ public class Receiver implements Runnable {
         }
 
         if (mode == 0) {
-            loadTesting();
+            loadTesting(false);
         }
         if (mode == 1) {
             infiniteTexting();

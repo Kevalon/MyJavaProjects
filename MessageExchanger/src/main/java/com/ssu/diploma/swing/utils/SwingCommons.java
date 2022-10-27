@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class SwingCommons {
+    public static final int RESOURCE_BUFFER_SIZE = 1 * 1024 * 1024;
 
     public static synchronized void browseDirAction(JTextField destination, JFrame frame) {
         JFileChooser dirFileChooser = new JFileChooser();

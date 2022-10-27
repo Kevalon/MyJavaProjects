@@ -1,5 +1,7 @@
 package com.ssu.diploma.threads;
 
+import static com.ssu.diploma.swing.utils.SwingCommons.RESOURCE_BUFFER_SIZE;
+
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
 import com.ssu.diploma.encryption.EncryptorImpl;
@@ -30,8 +32,6 @@ import javax.swing.JTextArea;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Sender implements Runnable {
-    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
-
     private final Map<String, String> settings;
     private final Encryptor encryptor;
     private final JTextArea logConsole;
@@ -71,7 +71,7 @@ public class Sender implements Runnable {
         }
 
         if (encrypt) {
-            Files.createDirectory(Path.of(".", "encryptedSent"));
+            Files.createDirectories(Path.of(".", "encryptedSent"));
         }
     }
 
@@ -136,7 +136,7 @@ public class Sender implements Runnable {
         }
     }
 
-    private void encryptAndSend(Path filePath, Cipher cipher) {
+    private void encryptAndSend(Path filePath, Cipher cipher, boolean infinite) {
         Instant start, end;
         String checkSumBefore = "";
         Path fileToSendPath = filePath;
@@ -150,7 +150,7 @@ public class Sender implements Runnable {
             }
             start = Instant.now();
             fileToSendPath =
-                    Path.of("./encryptedSent" + filePath.getFileName().toString() + ".enc");
+                    Path.of("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
             try {
                 encryptor.encrypt(
                         filePath.toString(),
@@ -166,7 +166,9 @@ public class Sender implements Runnable {
 
         File file = fileToSendPath.toFile();
         String filename = filePath.getFileName().toString();
-        logConsole.append("Отправляю файл " + filename + "\n");
+        if (!infinite) {
+            logConsole.append("Отправляю файл " + filename + "\n");
+        }
         try (InputStream fileInputStream = new FileInputStream(file)) {
             out.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
             out.flush();
@@ -185,24 +187,27 @@ public class Sender implements Runnable {
             exception.printStackTrace();
         }
 
-        try {
-            in.readLine();
-            end = Instant.now();
-            logConsole.append("Файл доставлен до получателя. Время: " +
-                    Duration.between(start, end).toSeconds() + " с.\n");
-            if (encrypt) {
-                if (checkSumBefore.equals(in.readLine())) {
-                    logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
-                } else {
-                    logConsole.append("Хэш-сумма файлов не совпала. Были потери при отправке.\n");
+        if (!infinite) {
+            try {
+                in.readLine();
+                end = Instant.now();
+                logConsole.append("Файл доставлен до получателя. Время: " +
+                        Duration.between(start, end).toMillis() + " мс.\n");
+                if (encrypt) {
+                    if (checkSumBefore.equals(in.readLine())) {
+                        logConsole.append("Хэш-сумма файлов совпала. Потерь нет.\n");
+                    } else {
+                        logConsole.append(
+                                "Хэш-сумма файлов не совпала. Были потери при отправке.\n");
+                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
-    private void loadTesting() {
+    private void loadTesting(boolean infinite) {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 List<Path> filesToSend =
@@ -219,8 +224,10 @@ public class Sender implements Runnable {
                 } else {
                     cipher = null;
                 }
-                sendData(filesToSend.size());
-                filesToSend.forEach(p -> encryptAndSend(p, cipher));
+                do {
+                    sendData(filesToSend.size());
+                    filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
+                } while (infinite);
                 break;
             } catch (IOException e) {
                 logConsole.append("Не удалось прочитать директорию с файлами для отправки.\n");
@@ -233,7 +240,10 @@ public class Sender implements Runnable {
     }
 
     private void infiniteTexting() {
-        // 2 беск отправка
+        while (!Thread.currentThread().isInterrupted()) {
+            logConsole.append("Бесконечная отправка началась. Для отмены нажмите 'Стоп'.\n");
+            loadTesting(true);
+        }
     }
 
     @Override
@@ -271,7 +281,7 @@ public class Sender implements Runnable {
         }
 
         if (mode == 0) {
-            loadTesting();
+            loadTesting(false);
         }
         if (mode == 1) {
             infiniteTexting();

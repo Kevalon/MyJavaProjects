@@ -1,5 +1,7 @@
 package com.ssu.diploma.encryption;
 
+import static com.ssu.diploma.swing.utils.SwingCommons.RESOURCE_BUFFER_SIZE;
+
 import com.ssu.diploma.swing.utils.SwingCommons;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,7 +31,6 @@ public class EncryptorImpl implements Encryptor {
     //    "AES" or "GOST3412-2015"
     public final String systemName;
     public static final byte pIVLen = 8;
-    private static final int RESOURCE_BUFFER_SIZE = 100 * 1024 * 1024;
 
     static {
         Security.setProperty("crypto.policy", "unlimited");
