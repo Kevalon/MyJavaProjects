@@ -142,7 +142,7 @@ public class Sender implements Runnable {
         Path fileToSendPath = filePath;
         if (encrypt) {
             try (InputStream is = Files.newInputStream(filePath)) {
-                checkSumBefore = DigestUtils.md5Hex(is);
+                checkSumBefore = DigestUtils.sha256Hex(is);
             } catch (IOException e) {
                 logConsole.append(
                         "Не удалось открыть поток на чтение для " + filePath.getFileName() + "\n");

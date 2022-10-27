@@ -143,7 +143,7 @@ public class Receiver implements Runnable {
         }
 
         if (encrypt) {
-            out.println(DigestUtils.md5Hex(Files.newInputStream(
+            out.println(DigestUtils.sha256Hex(Files.newInputStream(
                     Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
         }
     }
@@ -206,12 +206,13 @@ public class Receiver implements Runnable {
             mode = in.readInt();
             encrypt = in.readInt() == 1;
             if (encrypt) {
-                Files.createDirectory(Path.of(".", "encryptedReceived"));
+                Files.createDirectories(Path.of(".", "encryptedReceived"));
                 encParameters = setUpEncParameters();
                 encryptor = new EncryptorImpl(encParameters.getCipherSystem());
             }
             logConsole.append("Параметры работы и шифрования успешно получены.\n");
         } catch (IOException e) {
+            e.printStackTrace();
             logConsole.append("Не удалось прочитать входные данные.\n");
             return;
         } catch (GeneralSecurityException e) {

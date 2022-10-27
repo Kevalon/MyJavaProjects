@@ -102,7 +102,6 @@ public class EncryptorImpl implements Encryptor {
             long filesize = Files.size(Path.of(source));
             byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
             int count;
-            int check = 0;
             while (filesize > 0 &&
                     (count = input.read(
                             buffer,
@@ -110,11 +109,8 @@ public class EncryptorImpl implements Encryptor {
                             (int) Math.min(buffer.length, filesize)
                     )) > 0) {
                 output.write(cipher.update(buffer, 0, count));
-                check++;
-                System.out.println(check);
                 filesize -= count;
             }
-            System.out.println("did final");
             output.write(cipher.doFinal());
         }
     }
