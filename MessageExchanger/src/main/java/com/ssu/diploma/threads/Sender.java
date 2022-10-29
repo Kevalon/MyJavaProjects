@@ -31,9 +31,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
+import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
-public class Sender implements Runnable {
+public class Sender extends Thread {
     private final Map<String, String> settings;
     private final Encryptor encryptor;
     private final JTextArea logConsole;
@@ -43,6 +44,9 @@ public class Sender implements Runnable {
     private final RSA rsaInstance = new RSA();
     private final int mode; // 0, 1
     private final boolean encrypt;
+
+    @Setter
+    private boolean stop = false;
 
     public Sender(Map<String, String> settings, JTextArea logConsole, int mode, boolean encrypt) {
         this.settings = settings;
@@ -141,6 +145,9 @@ public class Sender implements Runnable {
     }
 
     private void encryptAndSend(Path filePath, Cipher cipher, boolean infinite) {
+        if (stop) {
+            return;
+        }
         Instant start, end;
         String checkSumBefore;
         Path fileToSendPath = filePath;
@@ -163,9 +170,11 @@ public class Sender implements Runnable {
             fileToSendPath =
                     Path.of("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
             try {
-                Utils.log(
-                        logConsole,
-                        String.format("Зашифровываю файл %s", filePath.getFileName()));
+                if (!infinite) {
+                    Utils.log(
+                            logConsole,
+                            String.format("Зашифровываю файл %s", filePath.getFileName()));
+                }
                 encryptor.encrypt(
                         filePath.toString(),
                         fileToSendPath.toString(),
@@ -223,59 +232,54 @@ public class Sender implements Runnable {
     }
 
     private void loadTesting(boolean infinite) {
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                List<Path> filesToSend =
-                        Files.walk(Path.of(settings.get("testFilesDirectory")))
-                                .filter(Files::isRegularFile)
-                                .collect(Collectors.toList());
-                Cipher cipher;
-                if (encrypt) {
-                    cipher = encryptor.init(
-                            settings.get("keyPath"),
-                            settings.get("IVPath"),
-                            true
-                    );
-                } else {
-                    cipher = null;
-                }
-
-                do {
-                    sendData(filesToSend.size());
-                    filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
-                } while (infinite);
-
-                if (encrypt) {
-                    Files.walk(Path.of("./encryptedSent/"))
+        try {
+            List<Path> filesToSend =
+                    Files.walk(Path.of(settings.get("testFilesDirectory")))
                             .filter(Files::isRegularFile)
-                            .forEach(path -> {
-                                try {
-                                    Files.deleteIfExists(path);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                }
-                break;
-            } catch (IOException e) {
-                Utils.log(
-                        logConsole,
-                        "Не удалось прочитать директорию с файлами для отправки.");
-                break;
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                Utils.log(logConsole, "Произошла внутренняя ошибка отправки файла.");
-                break;
+                            .collect(Collectors.toList());
+            Cipher cipher;
+            if (encrypt) {
+                cipher = encryptor.init(
+                        settings.get("keyPath"),
+                        settings.get("IVPath"),
+                        true
+                );
+            } else {
+                cipher = null;
             }
+
+            do {
+                if (stop) {
+                    break;
+                }
+                sendData(filesToSend.size());
+                filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
+            } while (infinite);
+
+            if (encrypt) {
+                Files.walk(Path.of("./encryptedSent/"))
+                        .filter(Files::isRegularFile)
+                        .forEach(path -> {
+                            try {
+                                Files.deleteIfExists(path);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            Utils.log(
+                    logConsole,
+                    "Не удалось прочитать директорию с файлами для отправки.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Utils.log(logConsole, "Произошла внутренняя ошибка отправки файла.");
         }
     }
 
     private void infiniteTexting() {
-        while (!Thread.currentThread().isInterrupted()) {
-            Utils.log(logConsole,
-                    "Бесконечная отправка началась. Для отмены нажмите 'Стоп'.");
-            loadTesting(true);
-        }
+        Utils.log(logConsole, "Бесконечная отправка началась. Для отмены нажмите 'Стоп'.");
+        loadTesting(true);
     }
 
     @Override

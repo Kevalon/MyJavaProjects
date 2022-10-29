@@ -4,9 +4,6 @@ import com.ssu.diploma.swing.utils.Utils;
 import com.ssu.diploma.threads.Receiver;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,7 +17,7 @@ public class ReceiverForm extends javax.swing.JFrame {
     private JButton settingsButton;
 
     private final ReceiverSettingsForm receiverSettingsForm = new ReceiverSettingsForm();
-    private Thread receiverThread;
+    private Receiver receiverThread;
 
     public ReceiverForm() {
         this.add(receiverPanel);
@@ -33,8 +30,7 @@ public class ReceiverForm extends javax.swing.JFrame {
                         "Пожалуйста, выберите директорию для принимаемых файлов в настройках.");
                 return;
             }
-            receiverThread = new Thread(
-                    new Receiver(receiverSettingsForm.getSettings(), logConsole));
+            receiverThread = new Receiver(receiverSettingsForm.getSettings(), logConsole);
             receiverThread.start();
         });
 
@@ -47,23 +43,7 @@ public class ReceiverForm extends javax.swing.JFrame {
                 Utils.log(logConsole, "Получатель не запущен.");
                 return;
             }
-            receiverThread.interrupt();
-            Utils.log(logConsole, "Получатель успешно остановлен.");
-
-            Path trash = Path.of("./encryptedReceived/");
-            try {
-                if (Files.list(trash).findAny().isPresent()) {
-                    Files.walk(trash).filter(Files::isRegularFile).forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException exception) {
-                            exception.printStackTrace();
-                        }
-                    });
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            receiverThread.setStop(true);
         });
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

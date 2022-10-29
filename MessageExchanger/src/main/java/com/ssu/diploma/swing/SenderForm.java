@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.stream.IntStream;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -34,7 +32,7 @@ public class SenderForm extends javax.swing.JFrame {
     private final String[] modes =
             {"Нагрузочное тестирование", "Бесконечная отправка"};
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
-    private Thread senderThread;
+    private Sender senderThread;
 
     public SenderForm() {
         this.add(senderPanel);
@@ -68,16 +66,14 @@ public class SenderForm extends javax.swing.JFrame {
                 );
                 return;
             }
-            senderThread = new Thread(
-                    new Sender(
-                            senderSettingsForm.getSettings(),
-                            logConsole,
-                            IntStream.range(0, modes.length)
-                                    .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
-                                    .findFirst()
-                                    .getAsInt(),
-                            endToEndRadio.isSelected()
-                    )
+            senderThread = new Sender(
+                    senderSettingsForm.getSettings(),
+                    logConsole,
+                    IntStream.range(0, modes.length)
+                            .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
+                            .findFirst()
+                            .getAsInt(),
+                    endToEndRadio.isSelected()
             );
             senderThread.start();
         });
@@ -87,25 +83,7 @@ public class SenderForm extends javax.swing.JFrame {
                 Utils.log(logConsole, "Отправитель не запущен.");
                 return;
             }
-            senderThread.interrupt();
-            Utils.log(logConsole, "Отправитель успешно остановлен.");
-            if (linkEncryptionRadio.isSelected()) {
-                try {
-                    Files.walk(Path.of("./encryptedSent/"))
-                            .filter(Files::isRegularFile)
-                            .forEach(
-                                    path -> {
-                                        try {
-                                            Files.deleteIfExists(path);
-                                        } catch (IOException ex) {
-                                            ex.printStackTrace();
-                                        }
-                                    });
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
+            senderThread.setStop(true);
         });
 
         settingsButton.addActionListener(e -> {

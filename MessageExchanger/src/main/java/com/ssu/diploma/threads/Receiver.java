@@ -1,6 +1,7 @@
 package com.ssu.diploma.threads;
 
 import static com.ssu.diploma.swing.utils.Utils.RESOURCE_BUFFER_SIZE;
+import static com.ssu.diploma.swing.utils.Utils.log;
 
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
@@ -11,17 +12,21 @@ import java.io.DataInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
+import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
-public class Receiver implements Runnable {
+public class Receiver extends Thread {
 
     private final Map<String, String> settings;
     private boolean encrypt;
@@ -29,11 +34,14 @@ public class Receiver implements Runnable {
     private final JTextArea logConsole;
     private final RSA rsaInstance = new RSA();
     private int mode; // 0, 1
-    private ServerSocket ss;
+    public ServerSocket ss;
     private Socket clientSocket;
     private PrintWriter out;
     private DataInputStream in;
     private EncryptionParametersDto encParameters;
+
+    @Setter
+    private boolean stop = false;
 
     public Receiver(Map<String, String> settings, JTextArea logConsole) {
         this.settings = settings;
@@ -43,13 +51,30 @@ public class Receiver implements Runnable {
     private void init() throws IOException {
         try {
             ss = new ServerSocket(Integer.parseInt(settings.get("serverPort")));
-            Utils.log(logConsole, "Получатель успешно запущен. Ожидаю отправителя.");
-        } catch (IOException e) {
+            Utils.log(logConsole, "Ожидаю отправителя.");
+        } catch (BindException exception) {
+            Utils.log(logConsole, "Невозможно повторно запустить сервер. " +
+                    "Пожалуйста, перезапустите программу.");
+            throw exception;
+        }
+        catch (IOException e) {
             Utils.log(logConsole, String.format("Не удалось запустить сервер на порте %s.",
                     settings.get("serverPort")));
             throw e;
         }
-        clientSocket = ss.accept();
+        ss.setSoTimeout(1000);
+        while (true) {
+            try {
+                clientSocket = ss.accept();
+                break;
+            } catch (SocketTimeoutException e) {
+                if (stop) {
+                    throw e;
+                }
+            }
+        }
+
+
         Utils.log(
                 logConsole,
                 "Отправитель " + clientSocket.getInetAddress() + " успешно подключился.");
@@ -150,107 +175,113 @@ public class Receiver implements Runnable {
     }
 
     private void loadTesting(boolean infinite) throws IOException {
-        while (!Thread.currentThread().isInterrupted()) {
-            if (!settings.containsKey("receivedFilesDirectory")) {
-                Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
-                        "Пожалуйста, укажите ее в настройках.");
-                break;
-            }
+        if (!settings.containsKey("receivedFilesDirectory")) {
+            Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
+                    "Пожалуйста, укажите ее в настройках.");
+            return;
+        }
 
-            Cipher cipher;
-            if (encrypt) {
-                try {
-                    cipher = encryptor.init(
-                            encParameters.getKey(),
-                            encParameters.getIV(),
-                            false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return;
-                }
-            } else {
-                cipher = null;
+        Cipher cipher;
+        if (encrypt) {
+            try {
+                cipher = encryptor.init(
+                        encParameters.getKey(),
+                        encParameters.getIV(),
+                        false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
             }
-            do {
-                try {
-                    int fileCount = in.readInt();
-                    for (int i = 0; i < fileCount; i++) {
-                        receiveOneFile(cipher, infinite);
+        } else {
+            cipher = null;
+        }
+        do {
+            try {
+                int fileCount = in.readInt();
+                for (int i = 0; i < fileCount; i++) {
+                    if (stop) {
+                        break;
                     }
-                } catch (IOException e) {
-                    Utils.log(logConsole, "Не удалось прочитать данные от отправителя.");
+                    receiveOneFile(cipher, infinite);
                 }
-            } while (infinite);
-
-            if (encrypt) {
-                Files.walk(Path.of("./encryptedReceived/"))
-                        .filter(Files::isRegularFile)
-                        .forEach(path -> {
-                            try {
-                                Files.deleteIfExists(path);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
+            } catch (SocketException exception) {
+                break;
+            } catch (IOException e) {
+                Utils.log(logConsole, "Не удалось прочитать данные от отправителя.");
             }
+        } while (infinite);
 
-            break;
+        if (encrypt) {
+            Files.walk(Path.of("./encryptedReceived/"))
+                    .filter(Files::isRegularFile)
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
         }
     }
 
     private void infiniteTexting() throws IOException {
-        while (!Thread.currentThread().isInterrupted()) {
-            Utils.log(logConsole, "Установлен режим бесконечного обмена сообщениями.");
-            loadTesting(true);
-        }
+        Utils.log(logConsole, "Установлен режим бесконечного обмена сообщениями.");
+        loadTesting(true);
     }
 
     @Override
     public void run() {
-        try {
-            init();
-        } catch (IOException e) {
-            return;
-        }
-        try {
-            byte[] encData = receiveByteArray();
-            if (!(new String(encData).equals("ENC_PAR"))) {
-                throw new IOException();
+        while (!stop) {
+            try {
+                init();
+            } catch (SocketTimeoutException exception) {
+                Utils.log(logConsole, "Получатель успешно остановлен.");
+                return;
             }
-            mode = in.readInt();
-            encrypt = in.readInt() == 1;
-            if (encrypt) {
-                Files.createDirectories(Path.of(".", "encryptedReceived"));
-                encParameters = setUpEncParameters();
-                encryptor = new EncryptorImpl(encParameters.getCipherSystem());
+            catch (IOException e) {
+                return;
             }
-            Utils.log(logConsole, "Параметры работы и шифрования успешно получены.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            Utils.log(logConsole, "Не удалось прочитать входные данные.");
-            return;
-        } catch (GeneralSecurityException e) {
-            Utils.log(logConsole, "Ошибка расшифрования параметров сквозного шифрования.");
-            return;
-        }
 
-        try {
-            if (mode == 0) {
-                loadTesting(false);
+            try {
+                byte[] encData = receiveByteArray();
+                if (!(new String(encData).equals("ENC_PAR"))) {
+                    throw new IOException();
+                }
+                mode = in.readInt();
+                encrypt = in.readInt() == 1;
+                if (encrypt) {
+                    Files.createDirectories(Path.of(".", "encryptedReceived"));
+                    encParameters = setUpEncParameters();
+                    encryptor = new EncryptorImpl(encParameters.getCipherSystem());
+                }
+                Utils.log(logConsole, "Параметры работы и шифрования успешно получены.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                Utils.log(logConsole, "Не удалось прочитать входные данные.");
+                return;
+            } catch (GeneralSecurityException e) {
+                Utils.log(logConsole, "Ошибка расшифрования параметров сквозного шифрования.");
+                return;
             }
-            if (mode == 1) {
-                infiniteTexting();
+
+            try {
+                if (mode == 0) {
+                    loadTesting(false);
+                }
+                if (mode == 1) {
+                    infiniteTexting();
+                }
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
 
 
-        try {
-            close();
-            Utils.log(logConsole, "Получатель успешно закончил свою работу и остановился.");
-        } catch (IOException e) {
-            Utils.log(logConsole, "Ошибка закрытия соединения. Возможна потеря данных.");
+            try {
+                close();
+                Utils.log(logConsole, "Получатель успешно закончил свою работу и остановился.");
+            } catch (IOException e) {
+                Utils.log(logConsole, "Ошибка закрытия соединения. Возможна потеря данных.");
+            }
         }
     }
 }
