@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class SenderForm extends javax.swing.JFrame {
@@ -28,6 +29,7 @@ public class SenderForm extends javax.swing.JFrame {
     private JRadioButton linkEncryptionRadio;
     private JRadioButton endToEndRadio;
     private JComboBox modeComboBox;
+    private JScrollPane logConsoleScrollPane;
 
     private final String[] modes =
             {"Нагрузочное тестирование", "Бесконечная отправка"};

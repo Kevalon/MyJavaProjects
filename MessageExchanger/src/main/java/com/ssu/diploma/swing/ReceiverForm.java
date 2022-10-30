@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class ReceiverForm extends javax.swing.JFrame {
@@ -15,6 +16,7 @@ public class ReceiverForm extends javax.swing.JFrame {
     private JButton stopButton;
     private JTextArea logConsole;
     private JButton settingsButton;
+    private JScrollPane logConsoleScrollPane;
 
     private final ReceiverSettingsForm receiverSettingsForm = new ReceiverSettingsForm();
     private Receiver receiverThread;

@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class SenderSettingsForm extends javax.swing.JFrame {
     private JButton generateNewIVButton;
     private JTextField IVPathTextField;
     private JButton choosePathButton4;
+    private JScrollPane errorLogConsoleScrollPane;
 
     private static final String[] SUPPORTED_CIPHERS = {"AES", "ГОСТ Р 34.12-2015 (Кузнечик)"};
     private static final URL DEFAULT_KEY_LOCATION

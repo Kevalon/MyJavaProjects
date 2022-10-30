@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class ReceiverSettingsForm extends javax.swing.JFrame {
     private JTextField receivedFilesDirectoryTextField;
     private JButton choosePathButton1;
     private JButton applyButton;
+    private JScrollPane errorLogConsoleScrollPane;
 
     @Getter
     private final Map<String, String> settings = new HashMap<>();
