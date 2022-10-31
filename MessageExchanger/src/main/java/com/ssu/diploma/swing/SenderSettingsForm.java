@@ -65,8 +65,11 @@ public class SenderSettingsForm extends JFrame {
         settings.put("cipherSystem", "AES");
         settings.put("keyPath", DEFAULT_KEY_LOCATION.toString());
         settings.put("IVPath", DEFAULT_IV_LOCATION.toString());
-        // todo: remove after fix
-        settings.put("testFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\send");
+        if (Files.exists(Paths.get("C:\\Users\\vbifu\\OneDrive\\Документы\\send"))) {
+            settings.put("testFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\send");
+        } else {
+            settings.put("testFilesDirectory", "");
+        }
 
         choosePathButton1.addActionListener(e ->
                 Utils.browseDirAction(testFilesDirectoryTextField, this));
@@ -368,4 +371,5 @@ public class SenderSettingsForm extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return settingsPanel;
     }
+
 }

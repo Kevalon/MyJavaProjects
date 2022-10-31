@@ -276,7 +276,6 @@ public class Receiver extends Thread {
                 exception.printStackTrace();
             }
 
-
             try {
                 close();
                 Utils.log(logConsole, "Получатель успешно закончил свою работу и остановился.");

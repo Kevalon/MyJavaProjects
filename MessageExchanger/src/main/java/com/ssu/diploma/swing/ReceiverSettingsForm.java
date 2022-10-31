@@ -36,8 +36,11 @@ public class ReceiverSettingsForm extends JFrame {
     public ReceiverSettingsForm() {
 
         settings.put("serverPort", "8081");
-        // todo: remove after fix
-        settings.put("receivedFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\receive");
+        if (Files.exists(Paths.get("C:\\Users\\vbifu\\OneDrive\\Документы\\receive"))) {
+            settings.put("receivedFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\receive");
+        } else {
+            settings.put("receivedFilesDirectory", "");
+        }
 
         choosePathButton1.addActionListener(e -> {
             Utils.browseDirAction(receivedFilesDirectoryTextField, this);

@@ -31,7 +31,7 @@ public class RSA {
     }
 
     public void generateKeyPair()
-            throws NoSuchAlgorithmException, IOException, NoSuchProviderException {
+            throws NoSuchAlgorithmException, NoSuchProviderException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", "BC");
         keyGen.initialize(512);
         KeyPair pair = keyGen.generateKeyPair();
