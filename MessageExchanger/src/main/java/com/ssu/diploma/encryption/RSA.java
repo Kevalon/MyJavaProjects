@@ -1,10 +1,8 @@
 package com.ssu.diploma.encryption;
 
+import com.ssu.diploma.swing.utils.Utils;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -24,9 +22,8 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class RSA {
 
-    private static final Path PUBLIC_KEY_PATH = Paths.get("./src/main/resources/publicKey.txt");
-    private static final Path PRIVATE_KEY_PATH =
-            Paths.get("./src/main/resources/privateKey.txt");
+    public static final URL PUBLIC_KEY_PATH = ClassLoader.getSystemResource("publicKey.txt");
+    public static final URL PRIVATE_KEY_PATH = ClassLoader.getSystemResource("privateKey.txt");
 
     static {
         Security.setProperty("crypto.policy", "unlimited");
@@ -38,8 +35,8 @@ public class RSA {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", "BC");
         keyGen.initialize(512);
         KeyPair pair = keyGen.generateKeyPair();
-        Files.write(PRIVATE_KEY_PATH, pair.getPrivate().getEncoded());
-        Files.write(PUBLIC_KEY_PATH, pair.getPublic().getEncoded());
+//        Files.write(PRIVATE_KEY_PATH, pair.getPrivate().getEncoded());
+//        Files.write(PUBLIC_KEY_PATH, pair.getPublic().getEncoded());
     }
 
     public byte[] encrypt(byte[] data)
@@ -50,7 +47,7 @@ public class RSA {
         cipher.init(Cipher.ENCRYPT_MODE,
                 KeyFactory.getInstance("RSA", "BC")
                         .generatePublic(
-                                new X509EncodedKeySpec(Files.readAllBytes(PUBLIC_KEY_PATH))));
+                                new X509EncodedKeySpec(Utils.getBytesFromURL(PUBLIC_KEY_PATH))));
         if (data.length > 64) {
             byte[] res = new byte[data.length];
             byte[] temp;
@@ -71,7 +68,7 @@ public class RSA {
         cipher.init(Cipher.DECRYPT_MODE,
                 KeyFactory.getInstance("RSA", "BC")
                         .generatePrivate(
-                                new PKCS8EncodedKeySpec(Files.readAllBytes(PRIVATE_KEY_PATH))));
+                                new PKCS8EncodedKeySpec(Utils.getBytesFromURL(PRIVATE_KEY_PATH))));
         if (data.length > 64) {
             byte[] res = new byte[data.length];
             byte[] temp;
@@ -82,18 +79,5 @@ public class RSA {
             }
             return res;
         } else return cipher.doFinal(data);
-    }
-
-    public static void main(String[] args)
-            throws NoSuchAlgorithmException, IOException, NoSuchPaddingException,
-            IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
-            InvalidKeyException, NoSuchProviderException, ShortBufferException {
-        RSA rsa = new RSA();
-        String test = "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttyyuuvvwwxxyyzz,,..//??!!aabbccddeeffgghhiijjkkllmmnnooppqqrrssttyyuuvvwwxxyyzz,,..//??!!";
-        //System.out.println(test.getBytes(StandardCharsets.UTF_8).length);
-        rsa.generateKeyPair();
-        byte[] encrypt = rsa.encrypt(test.getBytes(StandardCharsets.UTF_8));
-        byte[] decrypt = rsa.decrypt(encrypt);
-        System.out.println(new String(decrypt)  );
     }
 }

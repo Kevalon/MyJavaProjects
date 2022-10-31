@@ -313,6 +313,7 @@ public class Sender extends Thread {
         } catch (IOException exception) {
             Utils.log(logConsole,
                     "Не получилось отправить параметры шифрования получателю.");
+            exception.printStackTrace();
             return;
         } catch (GeneralSecurityException e) {
             Utils.log(logConsole,
