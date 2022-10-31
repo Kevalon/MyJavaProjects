@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
@@ -63,12 +64,12 @@ public class EncryptorImpl implements Encryptor {
         try {
             keyByte = Utils.getBytesFromURL(new URL(keyPath));
         } catch (MalformedURLException exception) {
-            keyByte = Files.readAllBytes(Path.of(keyPath));
+            keyByte = Files.readAllBytes(Paths.get(keyPath));
         }
         try {
             IV = Utils.getBytesFromURL(new URL(IVPath));
         } catch (MalformedURLException exception) {
-            IV = Files.readAllBytes(Path.of(IVPath));
+            IV = Files.readAllBytes(Paths.get(IVPath));
         }
         SecretKey key = new SecretKeySpec(keyByte, systemName);
 
@@ -99,7 +100,7 @@ public class EncryptorImpl implements Encryptor {
                 FileInputStream input = new FileInputStream(source);
                 FileOutputStream output = new FileOutputStream(destination)
         ) {
-            long filesize = Files.size(Path.of(source));
+            long filesize = Files.size(Paths.get(source));
             byte[] buffer = new byte[RESOURCE_BUFFER_SIZE];
             int count;
             while (filesize > 0 &&
@@ -117,6 +118,6 @@ public class EncryptorImpl implements Encryptor {
 
     public static void main(String[] args) throws IOException {
         byte[] IV = new EncryptorImpl("AES").generateIV();
-        Files.write(Path.of("./src/main/resources/IV.txt"), IV);
+        Files.write(Paths.get("./src/main/resources/IV.txt"), IV);
     }
 }

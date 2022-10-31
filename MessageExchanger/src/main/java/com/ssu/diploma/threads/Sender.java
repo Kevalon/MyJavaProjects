@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.Instant;
@@ -79,7 +80,7 @@ public class Sender extends Thread {
         }
 
         if (encrypt) {
-            Files.createDirectories(Path.of(".", "encryptedSent"));
+            Files.createDirectories(Paths.get(".", "encryptedSent"));
         }
     }
 
@@ -105,7 +106,7 @@ public class Sender extends Thread {
             key = Utils.getBytesFromURL(new URL(settings.get("keyPath")));
         } catch (MalformedURLException exception) {
             try {
-                key = Files.readAllBytes(Path.of(settings.get("keyPath")));
+                key = Files.readAllBytes(Paths.get(settings.get("keyPath")));
             } catch (IOException e) {
                 Utils.log(logConsole, "Ошибка чтения файла ключа.");
                 throw e;
@@ -115,7 +116,7 @@ public class Sender extends Thread {
             IV = Utils.getBytesFromURL(new URL(settings.get("IVPath")));
         } catch (MalformedURLException exception) {
             try {
-                IV = Files.readAllBytes(Path.of(settings.get("IVPath")));
+                IV = Files.readAllBytes(Paths.get(settings.get("IVPath")));
             } catch (IOException e) {
                 Utils.log(logConsole, "Ошибка чтения файла начального вектора.");
                 throw e;
@@ -168,7 +169,7 @@ public class Sender extends Thread {
         if (encrypt) {
             start = Instant.now();
             fileToSendPath =
-                    Path.of("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
+                    Paths.get("./encryptedSent/" + filePath.getFileName().toString() + ".enc");
             try {
                 if (!infinite) {
                     Utils.log(
@@ -234,7 +235,7 @@ public class Sender extends Thread {
     private void loadTesting(boolean infinite) {
         try {
             List<Path> filesToSend =
-                    Files.walk(Path.of(settings.get("testFilesDirectory")))
+                    Files.walk(Paths.get(settings.get("testFilesDirectory")))
                             .filter(Files::isRegularFile)
                             .collect(Collectors.toList());
             Cipher cipher;
@@ -257,7 +258,7 @@ public class Sender extends Thread {
             } while (infinite);
 
             if (encrypt) {
-                Files.walk(Path.of("./encryptedSent/"))
+                Files.walk(Paths.get("./encryptedSent/"))
                         .filter(Files::isRegularFile)
                         .forEach(path -> {
                             try {

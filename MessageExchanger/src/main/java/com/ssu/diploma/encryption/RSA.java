@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -23,9 +24,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class RSA {
 
-    private static final Path PUBLIC_KEY_PATH = Path.of("./src/main/resources/publicKey.txt");
+    private static final Path PUBLIC_KEY_PATH = Paths.get("./src/main/resources/publicKey.txt");
     private static final Path PRIVATE_KEY_PATH =
-            Path.of("./src/main/resources/privateKey.txt");
+            Paths.get("./src/main/resources/privateKey.txt");
 
     static {
         Security.setProperty("crypto.policy", "unlimited");

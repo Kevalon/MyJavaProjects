@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import org.apache.commons.io.IOUtils;
 
 public class Utils {
     public static final int RESOURCE_BUFFER_SIZE = 1024 * 1024;
@@ -51,7 +52,7 @@ public class Utils {
 
     public static synchronized byte[] getBytesFromURL(URL resource) {
         try (InputStream in = resource.openStream()) {
-            return in.readAllBytes();
+            return IOUtils.toByteArray(in);
         } catch (IOException exception) {
             exception.printStackTrace();
             return null;

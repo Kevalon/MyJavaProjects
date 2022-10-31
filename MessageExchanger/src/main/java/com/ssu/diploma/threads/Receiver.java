@@ -19,6 +19,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 import javax.crypto.Cipher;
@@ -171,7 +172,7 @@ public class Receiver extends Thread {
             Utils.log(logConsole, String.format("Получен файл %s", filename));
         }
         out.println(DigestUtils.sha256Hex(Files.newInputStream(
-                Path.of(settings.get("receivedFilesDirectory") + "/" + filename))));
+                Paths.get(settings.get("receivedFilesDirectory") + "/" + filename))));
     }
 
     private void loadTesting(boolean infinite) throws IOException {
@@ -212,7 +213,7 @@ public class Receiver extends Thread {
         } while (infinite);
 
         if (encrypt) {
-            Files.walk(Path.of("./encryptedReceived/"))
+            Files.walk(Paths.get("./encryptedReceived/"))
                     .filter(Files::isRegularFile)
                     .forEach(path -> {
                         try {
@@ -250,7 +251,7 @@ public class Receiver extends Thread {
                 mode = in.readInt();
                 encrypt = in.readInt() == 1;
                 if (encrypt) {
-                    Files.createDirectories(Path.of(".", "encryptedReceived"));
+                    Files.createDirectories(Paths.get(".", "encryptedReceived"));
                     encParameters = setUpEncParameters();
                     encryptor = new EncryptorImpl(encParameters.getCipherSystem());
                 }
