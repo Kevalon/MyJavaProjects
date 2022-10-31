@@ -1,24 +1,24 @@
 package com.ssu.diploma.threads;
 
 import static com.ssu.diploma.swing.utils.Utils.RESOURCE_BUFFER_SIZE;
-import static com.ssu.diploma.swing.utils.Utils.log;
 
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
 import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.encryption.RSA;
 import com.ssu.diploma.swing.utils.Utils;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class Receiver extends Thread {
     private int mode; // 0, 1
     public ServerSocket ss;
     private Socket clientSocket;
-    private PrintWriter out;
+    private DataOutputStream out;
     private DataInputStream in;
     private EncryptionParametersDto encParameters;
 
@@ -82,7 +82,7 @@ public class Receiver extends Thread {
 
         try {
             in = new DataInputStream(clientSocket.getInputStream());
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            out = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
         } catch (IOException exception) {
             Utils.log(
                     logConsole,
@@ -113,8 +113,8 @@ public class Receiver extends Thread {
     private EncryptionParametersDto setUpEncParameters() throws IOException,
             GeneralSecurityException {
         try {
-            byte[] key = receiveByteArray();
-            byte[] IV = receiveByteArray();
+            byte[] key = Utils.receiveByteArray(in);
+            byte[] IV = Utils.receiveByteArray(in);
             char cipherFirstLetter = (char) in.readInt();
             key = rsaInstance.decrypt(key);
             IV = rsaInstance.decrypt(IV);
@@ -131,18 +131,8 @@ public class Receiver extends Thread {
         }
     }
 
-    private byte[] receiveByteArray() throws IOException {
-        int length = in.readInt();
-        if (length > 0) {
-            byte[] message = new byte[length];
-            in.readFully(message, 0, message.length);
-            return message;
-        }
-        throw new IOException();
-    }
-
     private void receiveOneFile(Cipher cipher, boolean infinite) throws IOException {
-        String filename = new String(receiveByteArray());
+        String filename = new String(Utils.receiveByteArray(in));
         String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
                 settings.get("receivedFilesDirectory") + "/" + filename;
         long size = in.readLong();
@@ -167,12 +157,20 @@ public class Receiver extends Thread {
             }
         }
 
-        out.println("Received");
+        Utils.sendData(1, out);
         if (!infinite) {
             Utils.log(logConsole, String.format("Получен файл %s", filename));
         }
-        out.println(DigestUtils.sha256Hex(Files.newInputStream(
-                Paths.get(settings.get("receivedFilesDirectory") + "/" + filename))));
+        Utils.sendData(
+                DigestUtils.sha256Hex(
+                        Files.newInputStream(
+                                Paths.get(
+                                        settings.get("receivedFilesDirectory")
+                                                + "/"
+                                                + filename)))
+                        .getBytes(StandardCharsets.UTF_8),
+                out
+        );
     }
 
     private void loadTesting(boolean infinite) throws IOException {
@@ -244,13 +242,14 @@ public class Receiver extends Thread {
             }
 
             try {
-                byte[] encData = receiveByteArray();
+                byte[] encData = Utils.receiveByteArray(in);
                 if (!(new String(encData).equals("ENC_PAR"))) {
                     throw new IOException();
                 }
                 mode = in.readInt();
                 encrypt = in.readInt() == 1;
                 if (encrypt) {
+                    Utils.sendData(Utils.getBytesFromURL(RSA.PUBLIC_KEY_PATH), out);
                     Files.createDirectories(Paths.get(".", "encryptedReceived"));
                     encParameters = setUpEncParameters();
                     encryptor = new EncryptorImpl(encParameters.getCipherSystem());

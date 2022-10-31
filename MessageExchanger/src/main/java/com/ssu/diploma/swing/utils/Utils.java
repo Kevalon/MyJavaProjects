@@ -1,5 +1,7 @@
 package com.ssu.diploma.swing.utils;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,5 +67,31 @@ public class Utils {
                 '[' + LocalTime.now().truncatedTo(ChronoUnit.SECONDS).toString() + "] ",
                 message
         ));
+    }
+
+    public static byte[] receiveByteArray(DataInputStream in) throws IOException {
+        int length = in.readInt();
+        if (length > 0) {
+            byte[] message = new byte[length];
+            in.readFully(message, 0, message.length);
+            return message;
+        }
+        throw new IOException();
+    }
+
+    public static void sendData(Object data, DataOutputStream out) throws IOException {
+        if (data instanceof byte[]) {
+            byte[] newData = (byte[]) data;
+            out.writeInt(newData.length);
+            out.flush();
+            out.write(newData);
+            out.flush();
+        } else if (data instanceof Integer) {
+            out.writeInt((int) data);
+            out.flush();
+        } else if (data instanceof Character) {
+            out.writeInt((char) data);
+            out.flush();
+        }
     }
 }

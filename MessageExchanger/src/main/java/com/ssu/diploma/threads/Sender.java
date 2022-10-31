@@ -1,6 +1,7 @@
 package com.ssu.diploma.threads;
 
 import static com.ssu.diploma.swing.utils.Utils.RESOURCE_BUFFER_SIZE;
+import static com.ssu.diploma.swing.utils.Utils.receiveByteArray;
 
 import com.ssu.diploma.dto.EncryptionParametersDto;
 import com.ssu.diploma.encryption.Encryptor;
@@ -8,13 +9,12 @@ import com.ssu.diploma.encryption.EncryptorImpl;
 import com.ssu.diploma.encryption.RSA;
 import com.ssu.diploma.swing.utils.Utils;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -25,11 +25,9 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
 import lombok.Setter;
@@ -41,7 +39,7 @@ public class Sender extends Thread {
     private final JTextArea logConsole;
     private Socket clientSocket;
     private DataOutputStream out;
-    private BufferedReader in;
+    private DataInputStream in;
     private final RSA rsaInstance = new RSA();
     private final int mode; // 0, 1
     private final boolean encrypt;
@@ -72,7 +70,7 @@ public class Sender extends Thread {
         }
 
         try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            in = new DataInputStream(clientSocket.getInputStream());
             out = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
         } catch (IOException e) {
             Utils.log(logConsole, "Не удалось установить поточное соединение с получателем.");
@@ -127,22 +125,6 @@ public class Sender extends Thread {
                 .key(key)
                 .cipherSystem(settings.get("cipherSystem"))
                 .build();
-    }
-
-    private void sendData(Object data) throws IOException {
-        if (data instanceof byte[]) {
-            byte[] newData = (byte[]) data;
-            out.writeInt(newData.length);
-            out.flush();
-            out.write(newData);
-            out.flush();
-        } else if (data instanceof Integer) {
-            out.writeInt((int) data);
-            out.flush();
-        } else if (data instanceof Character) {
-            out.writeInt((char) data);
-            out.flush();
-        }
     }
 
     private void encryptAndSend(Path filePath, Cipher cipher, boolean infinite) {
@@ -215,11 +197,11 @@ public class Sender extends Thread {
 
         if (!infinite) {
             try {
-                in.readLine();
+                in.readInt();
                 end = Instant.now();
                 Utils.log(logConsole, "Файл доставлен до получателя. Время: " +
                         Duration.between(start, end).toMillis() + " мс.");
-                if (checkSumBefore.equals(in.readLine())) {
+                if (checkSumBefore.equals(new String(receiveByteArray(in)))) {
                     Utils.log(logConsole, "Хэш-сумма файлов совпала. Потерь нет.");
                 } else {
                     Utils.log(
@@ -253,7 +235,7 @@ public class Sender extends Thread {
                 if (stop) {
                     break;
                 }
-                sendData(filesToSend.size());
+                Utils.sendData(filesToSend.size(), out);
                 filesToSend.forEach(p -> encryptAndSend(p, cipher, infinite));
             } while (infinite);
 
@@ -298,17 +280,17 @@ public class Sender extends Thread {
         }
 
         try {
-            sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8));
-            sendData(mode);
+            Utils.sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8), out);
+            Utils.sendData(mode, out);
+            Utils.sendData(encrypt ? 1 : 0, out);
+
             if (encrypt) {
-                sendData(1);
-            } else {
-                sendData(0);
-            }
-            if (encrypt) {
-                sendData(rsaInstance.encrypt(parametersDto.getKey()));
-                sendData(rsaInstance.encrypt(parametersDto.getIV()));
-                sendData(parametersDto.getCipherSystem().charAt(0));
+                Utils.log(logConsole, "Запрашиваю у получателя его публичный ключ RSA.");
+                byte[] rsaKey = Utils.receiveByteArray(in);
+                Utils.log(logConsole, "Публичный ключ RSA успешно получен.");
+                Utils.sendData(rsaInstance.encrypt(parametersDto.getKey(), rsaKey), out);
+                Utils.sendData(rsaInstance.encrypt(parametersDto.getIV(), rsaKey), out);
+                Utils.sendData(parametersDto.getCipherSystem().charAt(0), out);
             }
         } catch (IOException exception) {
             Utils.log(logConsole,

@@ -39,7 +39,7 @@ public class RSA {
 //        Files.write(PUBLIC_KEY_PATH, pair.getPublic().getEncoded());
     }
 
-    public byte[] encrypt(byte[] data)
+    public byte[] encrypt(byte[] data, byte[] key)
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
             InvalidKeyException, NoSuchProviderException, ShortBufferException {
@@ -47,7 +47,7 @@ public class RSA {
         cipher.init(Cipher.ENCRYPT_MODE,
                 KeyFactory.getInstance("RSA", "BC")
                         .generatePublic(
-                                new X509EncodedKeySpec(Utils.getBytesFromURL(PUBLIC_KEY_PATH))));
+                                new X509EncodedKeySpec(key)));
         if (data.length > 64) {
             byte[] res = new byte[data.length];
             byte[] temp;
