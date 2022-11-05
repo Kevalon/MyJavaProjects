@@ -220,6 +220,7 @@ public class Receiver extends Thread {
                             e.printStackTrace();
                         }
                     });
+            Files.deleteIfExists(Paths.get("./encryptedReceived/"));
         }
     }
 

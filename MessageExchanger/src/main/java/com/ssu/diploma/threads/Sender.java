@@ -249,6 +249,7 @@ public class Sender extends Thread {
                                 e.printStackTrace();
                             }
                         });
+                Files.deleteIfExists(Paths.get("./encryptedSent/"));
             }
         } catch (IOException e) {
             Utils.log(
