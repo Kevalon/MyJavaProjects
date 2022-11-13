@@ -173,7 +173,7 @@ public class SenderForm extends JFrame {
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         linkEncryptionRadio = new JRadioButton();
-        linkEncryptionRadio.setText("Канальное шифрование");
+        linkEncryptionRadio.setText("Туннелирование");
         senderPanel.add(linkEncryptionRadio,
                 new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                         GridConstraints.FILL_NONE,
@@ -202,4 +202,5 @@ public class SenderForm extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return senderPanel;
     }
+
 }
