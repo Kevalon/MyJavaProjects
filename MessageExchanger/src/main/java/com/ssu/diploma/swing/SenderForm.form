@@ -46,29 +46,13 @@
         </constraints>
         <properties/>
       </component>
-      <component id="54c1f" class="javax.swing.JRadioButton" binding="endToEndRadio">
-        <constraints>
-          <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Сквозное шифрование"/>
-        </properties>
-      </component>
-      <component id="47cf6" class="javax.swing.JRadioButton" binding="linkEncryptionRadio">
-        <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Туннелирование"/>
-        </properties>
-      </component>
       <component id="5be46" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <horizontalAlignment value="4"/>
-          <text value="Тип тестирования"/>
+          <text value="Использовать сквозное шифрование?"/>
         </properties>
       </component>
       <scrollpane id="fe179" binding="logConsoleScrollPane">
@@ -84,6 +68,22 @@
           </component>
         </children>
       </scrollpane>
+      <component id="47cf6" class="javax.swing.JRadioButton" binding="linkEncryptionRadio">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Нет"/>
+        </properties>
+      </component>
+      <component id="54c1f" class="javax.swing.JRadioButton" binding="endToEndRadio">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Да"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

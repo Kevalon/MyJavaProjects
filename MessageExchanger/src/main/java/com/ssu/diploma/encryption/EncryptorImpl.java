@@ -31,7 +31,7 @@ public class EncryptorImpl implements Encryptor {
     public static final int KEY_LENGTH = 256;
     //    "AES" or "GOST3412-2015"
     public final String systemName;
-    public static final byte pIVLen = 8;
+    public static final byte pIVLen = 16;
 
     static {
         Security.setProperty("crypto.policy", "unlimited");
@@ -39,7 +39,7 @@ public class EncryptorImpl implements Encryptor {
     }
 
     public EncryptorImpl(String system) {
-        systemName = system.charAt(0) == 'A' ? "AES" : "GOST3412-2015";
+        systemName = system.charAt(0) == 'A' ? "AES/CFB/NoPadding" : "GOST3412-2015/CFB/NoPadding";
     }
 
     @Override

@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -47,15 +46,11 @@ public class SenderSettingsForm extends JFrame {
     private JScrollPane errorLogConsoleScrollPane;
 
     private static final String[] SUPPORTED_CIPHERS = {"AES", "ГОСТ Р 34.12-2015 (Кузнечик)"};
-    private static final URL DEFAULT_KEY_LOCATION
-            = ClassLoader.getSystemResource("key.txt");
-    private static final URL DEFAULT_IV_LOCATION
-            = ClassLoader.getSystemResource("IV.txt");
+    private static final URL DEFAULT_KEY_LOCATION = ClassLoader.getSystemResource("key.txt");
+    private static final URL DEFAULT_IV_LOCATION = ClassLoader.getSystemResource("IV.txt");
 
     @Getter
     private final Map<String, String> settings = new HashMap<>();
-
-    //TODO: разобраться с подписью jar файлов и BC
 
     public SenderSettingsForm() {
         cipherSystemComboBox.setModel(new DefaultComboBoxModel(SUPPORTED_CIPHERS));
@@ -127,8 +122,7 @@ public class SenderSettingsForm extends JFrame {
                 try {
                     long size;
                     try {
-                        size = Utils.getBytesFromURL(
-                                new URL(keyPathTextField.getText())).length;
+                        size = Utils.getBytesFromURL(new URL(keyPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Paths.get(keyPathTextField.getText()));
                     }
@@ -156,8 +150,7 @@ public class SenderSettingsForm extends JFrame {
                 try {
                     long size;
                     try {
-                        size = Utils.getBytesFromURL(
-                                new URL(IVPathTextField.getText())).length;
+                        size = Utils.getBytesFromURL(new URL(IVPathTextField.getText())).length;
                     } catch (MalformedURLException exception) {
                         size = Files.size(Paths.get(IVPathTextField.getText()));
                     }
@@ -167,7 +160,7 @@ public class SenderSettingsForm extends JFrame {
                                 errorLogConsole,
                                 String.format("Файл вектора имеет некорректную " +
                                                 "длину. Вектор должен быть = %d битам.",
-                                        EncryptorImpl.pIVLen));
+                                        EncryptorImpl.pIVLen * 8));
                         success = false;
                     } else {
                         settings.put("IVPath", IVPathTextField.getText());

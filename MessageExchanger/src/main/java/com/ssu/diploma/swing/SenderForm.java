@@ -166,22 +166,9 @@ public class SenderForm extends JFrame {
         senderPanel.add(modeComboBox, new GridConstraints(0, 3, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        endToEndRadio = new JRadioButton();
-        endToEndRadio.setText("Сквозное шифрование");
-        senderPanel.add(endToEndRadio, new GridConstraints(1, 1, 1, 2, GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        linkEncryptionRadio = new JRadioButton();
-        linkEncryptionRadio.setText("Туннелирование");
-        senderPanel.add(linkEncryptionRadio,
-                new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST,
-                        GridConstraints.FILL_NONE,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setHorizontalAlignment(4);
-        label1.setText("Тип тестирования");
+        label1.setText("Использовать сквозное шифрование?");
         senderPanel.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -194,6 +181,19 @@ public class SenderForm extends JFrame {
                                 GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         logConsole = new JTextArea();
         logConsoleScrollPane.setViewportView(logConsole);
+        linkEncryptionRadio = new JRadioButton();
+        linkEncryptionRadio.setText("Нет");
+        senderPanel.add(linkEncryptionRadio,
+                new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST,
+                        GridConstraints.FILL_NONE,
+                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        endToEndRadio = new JRadioButton();
+        endToEndRadio.setText("Да");
+        senderPanel.add(endToEndRadio, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**
