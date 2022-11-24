@@ -109,8 +109,8 @@ public class Receiver extends Thread {
         }
     }
 
-    private EncryptionParametersDto setUpEncParameters() throws IOException,
-            GeneralSecurityException {
+    private EncryptionParametersDto setUpEncParameters()
+            throws IOException, GeneralSecurityException {
         try {
             byte[] key = Utils.receiveByteArray(in);
             byte[] IV = Utils.receiveByteArray(in);
@@ -131,7 +131,7 @@ public class Receiver extends Thread {
     }
 
     private void receiveOneFile(Cipher cipher, boolean infinite) throws IOException {
-        String filename = new String(Utils.receiveByteArray(in));
+        String filename = new String(Utils.receiveByteArray(in), StandardCharsets.UTF_8);
         String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
                 settings.get("receivedFilesDirectory") + "/" + filename;
         long size = in.readLong();
