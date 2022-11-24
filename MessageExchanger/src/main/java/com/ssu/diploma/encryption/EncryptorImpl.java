@@ -44,7 +44,8 @@ public class EncryptorImpl implements Encryptor {
 
     @Override
     public byte[] generateKey() throws NoSuchAlgorithmException, NoSuchProviderException {
-        KeyGenerator keyGen = KeyGenerator.getInstance(systemName, "BC");
+        KeyGenerator keyGen =
+                KeyGenerator.getInstance(systemName.substring(0, systemName.indexOf('/')), "BC");
         keyGen.init(KEY_LENGTH);
         SecretKey key = keyGen.generateKey();
         return key.getEncoded();

@@ -7,10 +7,13 @@ import com.ssu.diploma.swing.utils.Utils;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -74,17 +77,15 @@ public class SenderSettingsForm extends JFrame {
                 Utils.browseFileAction(IVPathTextField, this));
 
         generateNewKeyButton.addActionListener(e -> {
-            int res = Utils.browseDirAction(keyPathTextField, this);
-            if (res == 1) {
-                return;
-            }
-            keyPathTextField.setText(keyPathTextField.getText() + "\\key.txt");
-
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
             try {
                 byte[] key = encryptor.generateKey();
-                Files.write(Paths.get(keyPathTextField.getText()), key);
+                Files.createDirectory(Paths.get("generatedKey"));
+                Path newPath = Paths.get("generatedKey", "key.txt");
+                Files.write(newPath, key);
+                Utils.log(errorLogConsole, "Новый ключ успешно сгенерирован");
+                keyPathTextField.setText(newPath.toAbsolutePath().toString());
             } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
                 Utils.log(errorLogConsole, "Ошибка генерации ключа.");
             } catch (IOException ex) {
@@ -95,17 +96,15 @@ public class SenderSettingsForm extends JFrame {
         });
 
         generateNewIVButton.addActionListener(e -> {
-            int res = Utils.browseDirAction(IVPathTextField, this);
-            if (res == 1) {
-                return;
-            }
-            IVPathTextField.setText(IVPathTextField.getText() + "\\IV.txt");
-
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
             try {
                 byte[] IV = encryptor.generateIV();
-                Files.write(Paths.get(IVPathTextField.getText()), IV);
+                Files.createDirectory(Paths.get("generatedIV"));
+                Path newPath = Paths.get("generatedIV", "IV.txt");
+                Files.write(newPath, IV);
+                Utils.log(errorLogConsole, "Новый начальный вектор успешно сгенерирован");
+                IVPathTextField.setText(newPath.toAbsolutePath().toString());
             } catch (IOException ex) {
                 Utils.log(errorLogConsole, "Не удалось найти указанный для генерации путь.");
             }
