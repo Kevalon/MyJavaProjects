@@ -52,7 +52,7 @@ public class Receiver extends Thread {
     private void init() throws IOException {
         try {
             ss = new ServerSocket(Integer.parseInt(settings.get("serverPort")));
-            Utils.log(logConsole, "Ожидаю отправителя.");
+            Utils.log(logConsole, "Ожидается отправитель.");
         } catch (BindException exception) {
             Utils.log(logConsole, "Невозможно повторно запустить сервер. " +
                     "Пожалуйста, перезапустите программу.");
@@ -74,7 +74,6 @@ public class Receiver extends Thread {
                 }
             }
         }
-
 
         Utils.log(
                 logConsole,

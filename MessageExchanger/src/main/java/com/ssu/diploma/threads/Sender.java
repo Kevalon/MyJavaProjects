@@ -156,7 +156,7 @@ public class Sender extends Thread {
                 if (!infinite) {
                     Utils.log(
                             logConsole,
-                            String.format("Зашифровываю файл %s", filePath.getFileName()));
+                            String.format("Шифрование файл %s", filePath.getFileName()));
                 }
                 encryptor.encrypt(
                         filePath.toString(),
@@ -175,7 +175,7 @@ public class Sender extends Thread {
         File file = fileToSendPath.toFile();
         String filename = filePath.getFileName().toString();
         if (!infinite) {
-            Utils.log(logConsole, String.format("Отправляю файл %s", filename));
+            Utils.log(logConsole, String.format("Отправление файла %s", filename));
         }
         try (InputStream fileInputStream = new FileInputStream(file)) {
             out.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
@@ -202,11 +202,11 @@ public class Sender extends Thread {
                 Utils.log(logConsole, "Файл доставлен до получателя. Время: " +
                         Duration.between(start, end).toMillis() + " мс.");
                 if (checkSumBefore.equals(new String(receiveByteArray(in)))) {
-                    Utils.log(logConsole, "Хэш-сумма файлов совпала. Потерь нет.");
+                    Utils.log(logConsole, "Хеш-сумма файлов совпала. Потерь нет.");
                 } else {
                     Utils.log(
                             logConsole,
-                            "Хэш-сумма файлов не совпала. Были потери при отправке.");
+                            "Хеш-сумма файлов не совпала. Были потери при отправке.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -286,7 +286,7 @@ public class Sender extends Thread {
             Utils.sendData(encrypt ? 1 : 0, out);
 
             if (encrypt) {
-                Utils.log(logConsole, "Запрашиваю у получателя его публичный ключ RSA.");
+                Utils.log(logConsole, "Отправлен запрос на публичный ключ RSA.");
                 byte[] rsaKey = Utils.receiveByteArray(in);
                 Utils.log(logConsole, "Публичный ключ RSA успешно получен.");
                 Utils.sendData(rsaInstance.encrypt(parametersDto.getKey(), rsaKey), out);
