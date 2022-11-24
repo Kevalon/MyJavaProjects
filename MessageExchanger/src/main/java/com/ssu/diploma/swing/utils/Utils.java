@@ -6,8 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.function.Predicate;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,10 +48,32 @@ public class Utils {
             if (file.exists() && file.isFile()) {
                 destination.setText(file.getAbsolutePath());
             } else {
-                JOptionPane.showMessageDialog(null,
-                        "Файл не найден.");
+                JOptionPane.showMessageDialog(null, "Файл не найден.");
                 browseFileAction(destination, frame);
             }
+        }
+    }
+
+    public static synchronized Path[] browseSeveralFiles(JFrame frame) {
+        JFileChooser fileFileChooser = new JFileChooser();
+        fileFileChooser.setDialogTitle("Выберите файлы для отправки");
+        fileFileChooser.setMultiSelectionEnabled(true);
+        int res = fileFileChooser.showOpenDialog(frame);
+        if (res == 0) {
+            File[] files = fileFileChooser.getSelectedFiles();
+            if (files.length < 1) {
+                JOptionPane.showMessageDialog(null,
+                        "Вы должны выбрать хотя бы 1 файл.");
+                return browseSeveralFiles(frame);
+            }
+            if (!Arrays.stream(files).allMatch(file -> file.exists() && file.isFile())) {
+                JOptionPane.showMessageDialog(null,
+                        "Ошибка чтения одного или нескольких выбранных файлов.");
+                return browseSeveralFiles(frame);
+            }
+            return Arrays.stream(files).map(File::toPath).toArray(Path[]::new);
+        } else {
+            return null;
         }
     }
 

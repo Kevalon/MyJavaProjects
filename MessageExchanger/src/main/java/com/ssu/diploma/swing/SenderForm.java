@@ -11,6 +11,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.stream.IntStream;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
@@ -37,7 +38,7 @@ public class SenderForm extends JFrame {
     private JScrollPane logConsoleScrollPane;
 
     private final String[] modes =
-            {"Нагрузочное тестирование", "Бесконечная отправка"};
+            {"Нагрузочное тестирование", "Бесконечная отправка", "Выборочная отправка файлов"};
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
     private Sender senderThread;
 
@@ -65,23 +66,39 @@ public class SenderForm extends JFrame {
         });
 
         startButton.addActionListener(e -> {
-            String test = senderSettingsForm.getSettings().get("testFilesDirectory");
-            if (test == null || test.equals("")) {
-                Utils.log(
+            int selectedMode = IntStream.range(0, modes.length)
+                    .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
+                    .findFirst()
+                    .getAsInt();
+
+            if (selectedMode == 2) {
+                Path[] paths = Utils.browseSeveralFiles(this);
+                if (paths == null) {
+                    return;
+                }
+                senderThread = new Sender(
+                        senderSettingsForm.getSettings(),
                         logConsole,
-                        "Пожалуйста, укажите в настройках директорию с отправляемыми файлами."
+                        selectedMode,
+                        endToEndRadio.isSelected(),
+                        paths
                 );
-                return;
+            } else {
+                String test = senderSettingsForm.getSettings().get("testFilesDirectory");
+                if (test == null || test.equals("")) {
+                    Utils.log(
+                            logConsole,
+                            "Пожалуйста, укажите в настройках директорию с отправляемыми файлами."
+                    );
+                    return;
+                }
+                senderThread = new Sender(
+                        senderSettingsForm.getSettings(),
+                        logConsole,
+                        selectedMode,
+                        endToEndRadio.isSelected()
+                );
             }
-            senderThread = new Sender(
-                    senderSettingsForm.getSettings(),
-                    logConsole,
-                    IntStream.range(0, modes.length)
-                            .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
-                            .findFirst()
-                            .getAsInt(),
-                    endToEndRadio.isSelected()
-            );
             senderThread.start();
         });
 

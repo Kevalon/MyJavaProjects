@@ -25,6 +25,7 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +42,9 @@ public class Sender extends Thread {
     private DataOutputStream out;
     private DataInputStream in;
     private final RSA rsaInstance = new RSA();
-    private final int mode; // 0, 1
+    private final int mode; // 0, 1, 2
     private final boolean encrypt;
+    private Path[] pathsToEncrypt;
 
     @Setter
     private boolean stop = false;
@@ -53,6 +55,21 @@ public class Sender extends Thread {
         this.logConsole = logConsole;
         this.mode = mode;
         this.encrypt = encrypt;
+    }
+
+    public Sender(
+            Map<String, String> settings,
+            JTextArea logConsole,
+            int mode,
+            boolean encrypt,
+            Path[] pathsToEncrypt
+    ) {
+        this.settings = settings;
+        encryptor = new EncryptorImpl(settings.get("cipherSystem"));
+        this.logConsole = logConsole;
+        this.mode = mode;
+        this.encrypt = encrypt;
+        this.pathsToEncrypt = pathsToEncrypt;
     }
 
     private void init() throws IOException {
@@ -217,10 +234,15 @@ public class Sender extends Thread {
 
     private void loadTesting(boolean infinite) {
         try {
-            List<Path> filesToSend =
-                    Files.walk(Paths.get(settings.get("testFilesDirectory")))
-                            .filter(Files::isRegularFile)
-                            .collect(Collectors.toList());
+            List<Path> filesToSend;
+            if (mode == 0) {
+                filesToSend = Files.walk(Paths.get(settings.get("testFilesDirectory")))
+                        .filter(Files::isRegularFile)
+                        .collect(Collectors.toList());
+            } else {
+                filesToSend = Arrays.asList(pathsToEncrypt);
+            }
+
             Cipher cipher;
             if (encrypt) {
                 cipher = encryptor.init(
@@ -304,7 +326,7 @@ public class Sender extends Thread {
                     "Не удалось зашифровать данные с помощью RSA для отправки.");
         }
 
-        if (mode == 0) {
+        if (mode == 0 || mode == 2) {
             loadTesting(false);
         }
         if (mode == 1) {
