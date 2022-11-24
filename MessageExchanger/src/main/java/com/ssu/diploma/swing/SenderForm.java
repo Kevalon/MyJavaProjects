@@ -2,6 +2,7 @@ package com.ssu.diploma.swing;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import com.ssu.diploma.swing.utils.Utils;
 import com.ssu.diploma.threads.Sender;
 import java.awt.Desktop;
@@ -29,7 +30,6 @@ public class SenderForm extends JFrame {
     private JTextArea logConsole;
     private JButton startButton;
     private JButton stopButton;
-    private JButton openFileButton;
     private JButton settingsButton;
     private JRadioButton linkEncryptionRadio;
     private JRadioButton endToEndRadio;
@@ -97,16 +97,6 @@ public class SenderForm extends JFrame {
             senderSettingsForm.init();
         });
 
-        openFileButton.addActionListener(e -> {
-            File file = new File(System.getProperty("user.dir"));
-            try {
-                Desktop.getDesktop().open(file);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Файл не найден.");
-            }
-        });
-
         this.setSize(800, 500);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -135,46 +125,33 @@ public class SenderForm extends JFrame {
      */
     private void $$$setupUI$$$() {
         senderPanel = new JPanel();
-        senderPanel.setLayout(new GridLayoutManager(4, 5, new Insets(0, 0, 0, 0), -1, -1));
+        senderPanel.setLayout(new GridLayoutManager(4, 8, new Insets(0, 0, 0, 0), -1, -1));
         startButton = new JButton();
         startButton.setText("Старт");
-        senderPanel.add(startButton, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER,
-                GridConstraints.FILL_HORIZONTAL,
+        senderPanel.add(startButton, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        stopButton = new JButton();
-        stopButton.setText("Стоп");
-        senderPanel.add(stopButton, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_CENTER,
-                GridConstraints.FILL_HORIZONTAL,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        openFileButton = new JButton();
-        openFileButton.setText("Открыть файл");
-        senderPanel.add(openFileButton,
-                new GridConstraints(3, 4, 1, 1, GridConstraints.ANCHOR_CENTER,
-                        GridConstraints.FILL_HORIZONTAL,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         settingsButton = new JButton();
         settingsButton.setText("Настройки");
         senderPanel.add(settingsButton,
-                new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_CENTER,
+                new GridConstraints(1, 7, 1, 1, GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_HORIZONTAL,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                         GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         modeComboBox = new JComboBox();
-        senderPanel.add(modeComboBox, new GridConstraints(0, 3, 1, 2, GridConstraints.ANCHOR_WEST,
+        senderPanel.add(modeComboBox, new GridConstraints(0, 6, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setHorizontalAlignment(4);
         label1.setText("Использовать сквозное шифрование?");
-        senderPanel.add(label1, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        senderPanel.add(label1, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         logConsoleScrollPane = new JScrollPane();
         senderPanel.add(logConsoleScrollPane,
-                new GridConstraints(2, 0, 1, 5, GridConstraints.ANCHOR_CENTER,
+                new GridConstraints(2, 0, 1, 8, GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK |
                         GridConstraints.SIZEPOLICY_WANT_GROW,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK |
@@ -184,7 +161,7 @@ public class SenderForm extends JFrame {
         linkEncryptionRadio = new JRadioButton();
         linkEncryptionRadio.setText("Нет");
         senderPanel.add(linkEncryptionRadio,
-                new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST,
+                new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_WEST,
                         GridConstraints.FILL_NONE,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                         GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -194,6 +171,16 @@ public class SenderForm extends JFrame {
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        stopButton = new JButton();
+        stopButton.setText("Стоп");
+        senderPanel.add(stopButton, new GridConstraints(3, 7, 1, 1, GridConstraints.ANCHOR_EAST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        senderPanel.add(spacer1, new GridConstraints(3, 2, 1, 3, GridConstraints.ANCHOR_CENTER,
+                GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null,
+                null, null, 0, false));
     }
 
     /**
