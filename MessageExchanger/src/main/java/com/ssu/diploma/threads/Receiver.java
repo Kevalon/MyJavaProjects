@@ -243,7 +243,7 @@ public class Receiver extends Thread {
 
             try {
                 byte[] encData = Utils.receiveByteArray(in);
-                if (!(new String(encData).equals("ENC_PAR"))) {
+                if (!(new String(encData, StandardCharsets.UTF_8).equals("ENC_PAR"))) {
                     throw new IOException();
                 }
                 mode = in.readInt();

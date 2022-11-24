@@ -156,7 +156,7 @@ public class Sender extends Thread {
                 if (!infinite) {
                     Utils.log(
                             logConsole,
-                            String.format("Шифрование файл %s", filePath.getFileName()));
+                            String.format("Шифрование файла %s", filePath.getFileName()));
                 }
                 encryptor.encrypt(
                         filePath.toString(),
@@ -201,7 +201,8 @@ public class Sender extends Thread {
                 end = Instant.now();
                 Utils.log(logConsole, "Файл доставлен до получателя. Время: " +
                         Duration.between(start, end).toMillis() + " мс.");
-                if (checkSumBefore.equals(new String(receiveByteArray(in)))) {
+                if (checkSumBefore.equals(new String(receiveByteArray(in),
+                        StandardCharsets.UTF_8))) {
                     Utils.log(logConsole, "Хеш-сумма файлов совпала. Потерь нет.");
                 } else {
                     Utils.log(
