@@ -9,14 +9,15 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.stream.IntStream;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -28,12 +29,13 @@ public class SenderForm extends JFrame {
     private JButton startButton;
     private JButton stopButton;
     private JButton settingsButton;
-    private JRadioButton linkEncryptionRadio;
+    private JRadioButton tunnelingRadio;
     private JRadioButton endToEndRadio;
     private JComboBox modeComboBox;
     private JScrollPane logConsoleScrollPane;
+    private JRadioButton linkEncryptionRadio;
 
-    private final String[] modes =
+    private final String[] testingModes =
             {"Нагрузочное тестирование", "Бесконечная отправка", "Выборочная отправка файлов"};
     private final SenderSettingsForm senderSettingsForm = new SenderSettingsForm();
     private Sender senderThread;
@@ -41,46 +43,78 @@ public class SenderForm extends JFrame {
     public SenderForm() {
         this.add(senderPanel);
 
-        modeComboBox.setModel(new DefaultComboBoxModel(modes));
+        modeComboBox.setModel(new DefaultComboBoxModel(testingModes));
 
         endToEndRadio.setSelected(true);
 
+        tunnelingRadio.addActionListener(e -> {
+            linkEncryptionRadio.setSelected(false);
+            endToEndRadio.setSelected(false);
+        });
+
         linkEncryptionRadio.addActionListener(e -> {
-            if (endToEndRadio.isSelected()) {
-                ButtonGroup rb = new ButtonGroup();
-                rb.add(endToEndRadio);
-                rb.clearSelection();
-            }
+            endToEndRadio.setSelected(false);
+            tunnelingRadio.setSelected(false);
         });
 
         endToEndRadio.addActionListener(e -> {
-            if (linkEncryptionRadio.isSelected()) {
-                ButtonGroup rb = new ButtonGroup();
-                rb.add(linkEncryptionRadio);
-                rb.clearSelection();
-            }
+            tunnelingRadio.setSelected(false);
+            linkEncryptionRadio.setSelected(false);
         });
 
         startButton.addActionListener(e -> {
-            int selectedMode = IntStream.range(0, modes.length)
-                    .filter(i -> modes[i].equals(modeComboBox.getSelectedItem()))
+            int testingMode = IntStream.range(0, testingModes.length)
+                    .filter(i -> testingModes[i].equals(modeComboBox.getSelectedItem()))
                     .findFirst()
                     .getAsInt();
+            // 0 - end-to-end, 1 - link, 2 - tunnel
+            int encryptionMode;
+            if (endToEndRadio.isSelected()) {
+                encryptionMode = 0;
+            } else if (linkEncryptionRadio.isSelected()) {
+                encryptionMode = 1;
+            } else {
+                encryptionMode = 2;
+            }
+            Map<String, String> settings = senderSettingsForm.getSettings();
 
-            if (selectedMode == 2) {
+            if (encryptionMode == 1) {
+                int nodesAmount;
+                boolean repeat = false;
+                String message = "Введите количество промежуточных узлов";
+                do {
+                    if (repeat) {
+                        message = "Пожалуйста, укажите неотрицательное целое число";
+                    }
+                    String name = JOptionPane.showInputDialog(this,
+                            message, null);
+                    if (name == null) {
+                        return;
+                    }
+                    try {
+                        nodesAmount = Integer.parseInt(name);
+                    } catch (NumberFormatException exception) {
+                        nodesAmount = -1;
+                    }
+                    repeat = true;
+                } while (nodesAmount < 0);
+                settings.put("nodesAmount", String.valueOf(nodesAmount));
+            }
+
+            if (testingMode == 2) {
                 Path[] paths = Utils.browseSeveralFiles(this);
                 if (paths == null) {
                     return;
                 }
                 senderThread = new Sender(
-                        senderSettingsForm.getSettings(),
+                        settings,
                         logConsole,
-                        selectedMode,
-                        endToEndRadio.isSelected(),
+                        testingMode,
+                        encryptionMode,
                         paths
                 );
             } else {
-                String test = senderSettingsForm.getSettings().get("testFilesDirectory");
+                String test = settings.get("testFilesDirectory");
                 if (test == null || test.equals("")) {
                     Utils.log(
                             logConsole,
@@ -89,10 +123,10 @@ public class SenderForm extends JFrame {
                     return;
                 }
                 senderThread = new Sender(
-                        senderSettingsForm.getSettings(),
+                        settings,
                         logConsole,
-                        selectedMode,
-                        endToEndRadio.isSelected()
+                        testingMode,
+                        encryptionMode
                 );
             }
             senderThread.start();
@@ -138,62 +172,68 @@ public class SenderForm extends JFrame {
      */
     private void $$$setupUI$$$() {
         senderPanel = new JPanel();
-        senderPanel.setLayout(new GridLayoutManager(4, 8, new Insets(0, 0, 0, 0), -1, -1));
+        senderPanel.setLayout(new GridLayoutManager(4, 9, new Insets(0, 0, 0, 0), -1, -1));
         startButton = new JButton();
         startButton.setText("Старт");
-        senderPanel.add(startButton, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST,
+        senderPanel.add(startButton, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         settingsButton = new JButton();
         settingsButton.setText("Настройки");
         senderPanel.add(settingsButton,
-                new GridConstraints(1, 7, 1, 1, GridConstraints.ANCHOR_CENTER,
+                new GridConstraints(1, 8, 1, 1, GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_HORIZONTAL,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                         GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         modeComboBox = new JComboBox();
-        senderPanel.add(modeComboBox, new GridConstraints(0, 6, 1, 2, GridConstraints.ANCHOR_WEST,
+        senderPanel.add(modeComboBox, new GridConstraints(0, 7, 1, 2, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setHorizontalAlignment(4);
-        label1.setText("Использовать сквозное шифрование?");
-        senderPanel.add(label1, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_WEST,
+        label1.setText("Вид шифрования");
+        senderPanel.add(label1, new GridConstraints(0, 0, 1, 6, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         logConsoleScrollPane = new JScrollPane();
         senderPanel.add(logConsoleScrollPane,
-                new GridConstraints(2, 0, 1, 8, GridConstraints.ANCHOR_CENTER,
+                new GridConstraints(2, 0, 1, 9, GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK |
                         GridConstraints.SIZEPOLICY_WANT_GROW,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK |
                                 GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         logConsole = new JTextArea();
         logConsoleScrollPane.setViewportView(logConsole);
-        linkEncryptionRadio = new JRadioButton();
-        linkEncryptionRadio.setText("Нет");
-        senderPanel.add(linkEncryptionRadio,
-                new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_WEST,
-                        GridConstraints.FILL_NONE,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         endToEndRadio = new JRadioButton();
-        endToEndRadio.setText("Да");
+        endToEndRadio.setText("Сквозное шифрование");
         senderPanel.add(endToEndRadio, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         stopButton = new JButton();
         stopButton.setText("Стоп");
-        senderPanel.add(stopButton, new GridConstraints(3, 7, 1, 1, GridConstraints.ANCHOR_EAST,
+        senderPanel.add(stopButton, new GridConstraints(3, 8, 1, 1, GridConstraints.ANCHOR_EAST,
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        senderPanel.add(spacer1, new GridConstraints(3, 2, 1, 3, GridConstraints.ANCHOR_CENTER,
+        senderPanel.add(spacer1, new GridConstraints(3, 3, 1, 3, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null,
                 null, null, 0, false));
+        tunnelingRadio = new JRadioButton();
+        tunnelingRadio.setText("Туннелирование");
+        senderPanel.add(tunnelingRadio, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        linkEncryptionRadio = new JRadioButton();
+        linkEncryptionRadio.setText("Канальное шифрование");
+        senderPanel.add(linkEncryptionRadio,
+                new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST,
+                        GridConstraints.FILL_NONE,
+                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

@@ -34,7 +34,9 @@ public class Receiver extends Thread {
     private Encryptor encryptor;
     private final JTextArea logConsole;
     private final RSA rsaInstance = new RSA();
-    private int mode; // 0, 1, 2
+    private int testingMode; // 0, 1, 2
+    private int encryptionMode; // 0, 1, 2
+    private int nodesAmount;
     public ServerSocket ss;
     private Socket clientSocket;
     private DataOutputStream out;
@@ -154,6 +156,27 @@ public class Receiver extends Thread {
             } catch (Exception e) {
                 Utils.log(logConsole, String.format("Ошибка расшифрования файла %s", filename));
             }
+            if (encryptionMode == 1) {
+                try {
+                    Cipher encryptCipher =
+                            encryptor.init(encParameters.getKey(), encParameters.getIV(), true);
+                    for (int i = 0; i < nodesAmount; i++) {
+                        encryptor.encrypt(
+                                settings.get("receivedFilesDirectory") + "/" + filename,
+                                receivePath,
+                                encryptCipher);
+                        encryptor.encrypt(
+                                receivePath,
+                                settings.get("receivedFilesDirectory") + "/" + filename,
+                                cipher);
+                    }
+                } catch (Exception e) {
+                    Utils.log(
+                            logConsole,
+                            "Ошибка симуляция шифрования/расшифрования для канального режима"
+                    );
+                }
+            }
         }
 
         Utils.sendData(1, out);
@@ -173,7 +196,7 @@ public class Receiver extends Thread {
     }
 
     private void loadTesting(boolean infinite) throws IOException {
-        if (mode != 2 && !settings.containsKey("receivedFilesDirectory")) {
+        if (testingMode != 2 && !settings.containsKey("receivedFilesDirectory")) {
             Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
                     "Пожалуйста, укажите ее в настройках.");
             return;
@@ -246,9 +269,13 @@ public class Receiver extends Thread {
                 if (!(new String(encData, StandardCharsets.UTF_8).equals("ENC_PAR"))) {
                     throw new IOException();
                 }
-                mode = in.readInt();
-                encrypt = in.readInt() == 1;
+                testingMode = in.readInt();
+                encryptionMode = in.readInt();
+                encrypt = encryptionMode != 2;
                 if (encrypt) {
+                    if (encryptionMode == 1) {
+                        nodesAmount = in.readInt();
+                    }
                     Utils.sendData(Utils.getBytesFromURL(RSA.PUBLIC_KEY_PATH), out);
                     Files.createDirectories(Paths.get(".", "encryptedReceived"));
                     encParameters = setUpEncParameters();
@@ -265,10 +292,10 @@ public class Receiver extends Thread {
             }
 
             try {
-                if (mode == 0 || mode == 2) {
+                if (testingMode == 0 || testingMode == 2) {
                     loadTesting(false);
                 }
-                if (mode == 1) {
+                if (testingMode == 1) {
                     infiniteTexting();
                 }
             } catch (IOException exception) {

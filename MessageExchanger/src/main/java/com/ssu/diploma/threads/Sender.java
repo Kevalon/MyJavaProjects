@@ -42,33 +42,40 @@ public class Sender extends Thread {
     private DataOutputStream out;
     private DataInputStream in;
     private final RSA rsaInstance = new RSA();
-    private final int mode; // 0, 1, 2
+    private final int testingMode; // 0, 1, 2
+    private final int encryptionMode; // 0, 1, 2
     private final boolean encrypt;
     private Path[] pathsToEncrypt;
 
     @Setter
     private boolean stop = false;
 
-    public Sender(Map<String, String> settings, JTextArea logConsole, int mode, boolean encrypt) {
+    public Sender(
+            Map<String, String> settings,
+            JTextArea logConsole,
+            int testingMode,
+            int encryptionMode) {
         this.settings = settings;
         encryptor = new EncryptorImpl(settings.get("cipherSystem"));
         this.logConsole = logConsole;
-        this.mode = mode;
-        this.encrypt = encrypt;
+        this.testingMode = testingMode;
+        this.encryptionMode = encryptionMode;
+        encrypt = encryptionMode != 2;
     }
 
     public Sender(
             Map<String, String> settings,
             JTextArea logConsole,
-            int mode,
-            boolean encrypt,
+            int testingMode,
+            int encryptionMode,
             Path[] pathsToEncrypt
     ) {
         this.settings = settings;
         encryptor = new EncryptorImpl(settings.get("cipherSystem"));
         this.logConsole = logConsole;
-        this.mode = mode;
-        this.encrypt = encrypt;
+        this.testingMode = testingMode;
+        this.encryptionMode = encryptionMode;
+        encrypt = encryptionMode != 2;
         this.pathsToEncrypt = pathsToEncrypt;
     }
 
@@ -235,7 +242,7 @@ public class Sender extends Thread {
     private void loadTesting(boolean infinite) {
         try {
             List<Path> filesToSend;
-            if (mode == 0) {
+            if (testingMode == 0) {
                 filesToSend = Files.walk(Paths.get(settings.get("testFilesDirectory")))
                         .filter(Files::isRegularFile)
                         .collect(Collectors.toList());
@@ -305,8 +312,11 @@ public class Sender extends Thread {
 
         try {
             Utils.sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8), out);
-            Utils.sendData(mode, out);
-            Utils.sendData(encrypt ? 1 : 0, out);
+            Utils.sendData(testingMode, out);
+            Utils.sendData(encryptionMode, out);
+            if (encryptionMode == 1) {
+                Utils.sendData(Integer.parseInt(settings.get("nodesAmount")), out);
+            }
 
             if (encrypt) {
                 Utils.log(logConsole, "Отправлен запрос на публичный ключ RSA.");
@@ -326,10 +336,10 @@ public class Sender extends Thread {
                     "Не удалось зашифровать данные с помощью RSA для отправки.");
         }
 
-        if (mode == 0 || mode == 2) {
+        if (testingMode == 0 || testingMode == 2) {
             loadTesting(false);
         }
-        if (mode == 1) {
+        if (testingMode == 1) {
             infiniteTexting();
         }
 
