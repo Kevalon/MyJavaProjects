@@ -34,7 +34,7 @@ public class Receiver extends Thread {
     private Encryptor encryptor;
     private final JTextArea logConsole;
     private final RSA rsaInstance = new RSA();
-    private int mode; // 0, 1
+    private int mode; // 0, 1, 2
     public ServerSocket ss;
     private Socket clientSocket;
     private DataOutputStream out;
@@ -173,7 +173,7 @@ public class Receiver extends Thread {
     }
 
     private void loadTesting(boolean infinite) throws IOException {
-        if (!settings.containsKey("receivedFilesDirectory")) {
+        if (mode != 2 && !settings.containsKey("receivedFilesDirectory")) {
             Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
                     "Пожалуйста, укажите ее в настройках.");
             return;
@@ -265,7 +265,7 @@ public class Receiver extends Thread {
             }
 
             try {
-                if (mode == 0) {
+                if (mode == 0 || mode == 2) {
                     loadTesting(false);
                 }
                 if (mode == 1) {
