@@ -79,10 +79,13 @@ public class SenderSettingsForm extends JFrame {
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
             try {
                 byte[] key = encryptor.generateKey();
-                Files.createDirectory(Paths.get("generatedKey"));
+                Path keyFolder = Paths.get("generatedKey");
+                if (!Files.exists(keyFolder)) {
+                    Files.createDirectory(keyFolder);
+                }
                 Path newPath = Paths.get("generatedKey", "key.txt");
                 Files.write(newPath, key);
-                Utils.log(errorLogConsole, "Новый ключ успешно сгенерирован");
+                Utils.log(errorLogConsole, "Новый ключ успешно сгенерирован.");
                 keyPathTextField.setText(newPath.toAbsolutePath().toString());
             } catch (NoSuchAlgorithmException | NoSuchProviderException ex) {
                 Utils.log(errorLogConsole, "Ошибка генерации ключа.");
@@ -98,10 +101,13 @@ public class SenderSettingsForm extends JFrame {
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
             try {
                 byte[] IV = encryptor.generateIV();
-                Files.createDirectory(Paths.get("generatedIV"));
+                Path IVFolder = Paths.get("generatedIV");
+                if (!Files.exists(IVFolder)) {
+                    Files.createDirectory(IVFolder);
+                }
                 Path newPath = Paths.get("generatedIV", "IV.txt");
                 Files.write(newPath, IV);
-                Utils.log(errorLogConsole, "Новый начальный вектор успешно сгенерирован");
+                Utils.log(errorLogConsole, "Новый начальный вектор успешно сгенерирован.");
                 IVPathTextField.setText(newPath.toAbsolutePath().toString());
             } catch (IOException ex) {
                 Utils.log(errorLogConsole, "Не удалось найти указанный для генерации путь.");
