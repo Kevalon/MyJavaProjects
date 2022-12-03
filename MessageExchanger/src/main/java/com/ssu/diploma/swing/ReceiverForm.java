@@ -46,7 +46,7 @@ public class ReceiverForm extends JFrame {
         });
 
         stopButton.addActionListener(e -> {
-            if (receiverThread == null) {
+            if (receiverThread == null || receiverThread.isStop()) {
                 Utils.log(logConsole, "Получатель не запущен.");
                 return;
             }

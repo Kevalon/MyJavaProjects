@@ -134,7 +134,7 @@ public class SenderForm extends JFrame {
         });
 
         stopButton.addActionListener(e -> {
-            if (senderThread == null) {
+            if (senderThread == null || senderThread.isStop()) {
                 Utils.log(logConsole, "Отправитель не запущен.");
                 return;
             }

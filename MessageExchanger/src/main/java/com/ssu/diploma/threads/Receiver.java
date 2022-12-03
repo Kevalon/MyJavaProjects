@@ -25,6 +25,7 @@ import java.security.GeneralSecurityException;
 import java.util.Map;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -45,6 +46,7 @@ public class Receiver extends Thread {
     private EncryptionParametersDto encParameters;
 
     @Setter
+    @Getter
     private boolean stop = false;
 
     public Receiver(Map<String, String> settings, JTextArea logConsole) {
@@ -165,9 +167,7 @@ public class Receiver extends Thread {
             }
         }
 
-        if (!infinite) {
-            Utils.log(logConsole, String.format("Получен файл %s", filename));
-        }
+        Utils.log(logConsole, String.format("Получен файл %s", filename));
         if (encrypt && encryptionMode == 1) {
             Utils.log(
                     logConsole,
@@ -204,16 +204,18 @@ public class Receiver extends Thread {
             }
         }
         Utils.sendData(1, out);
-        Utils.sendData(
-                DigestUtils.sha256Hex(
-                        Files.newInputStream(
-                                Paths.get(
-                                        settings.get("receivedFilesDirectory")
-                                                + "/"
-                                                + filename)))
-                        .getBytes(StandardCharsets.UTF_8),
-                out
-        );
+        if (encryptionMode != 2) {
+            Utils.sendData(
+                    DigestUtils.sha256Hex(
+                                    Files.newInputStream(
+                                            Paths.get(
+                                                    settings.get("receivedFilesDirectory")
+                                                            + "/"
+                                                            + filename)))
+                            .getBytes(StandardCharsets.UTF_8),
+                    out
+            );
+        }
     }
 
     private void loadTesting(boolean infinite) throws IOException {
@@ -278,8 +280,13 @@ public class Receiver extends Thread {
             try {
                 init();
             } catch (SocketTimeoutException exception) {
-                Utils.log(logConsole, "Получатель успешно остановлен.");
-                return;
+                try {
+                    close();
+                } catch (IOException e) {
+                    Utils.log(logConsole, "Возникла ошибка при остановке получателя.");
+                    return;
+                }
+                break;
             }
             catch (IOException e) {
                 return;
@@ -325,10 +332,11 @@ public class Receiver extends Thread {
 
             try {
                 close();
-                Utils.log(logConsole, "Получатель успешно закончил свою работу и остановился.");
+                Utils.log(logConsole, "Получены все файлы. Отправитель отключился.");
             } catch (IOException e) {
                 Utils.log(logConsole, "Ошибка закрытия соединения. Возможна потеря данных.");
             }
         }
+        Utils.log(logConsole, "Получатель успешно остановлен.");
     }
 }

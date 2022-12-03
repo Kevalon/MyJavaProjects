@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.crypto.Cipher;
 import javax.swing.JTextArea;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -48,6 +49,7 @@ public class Sender extends Thread {
     private Path[] pathsToEncrypt;
 
     @Setter
+    @Getter
     private boolean stop = false;
 
     public Sender(
@@ -198,9 +200,7 @@ public class Sender extends Thread {
 
         File file = fileToSendPath.toFile();
         String filename = filePath.getFileName().toString();
-        if (!infinite) {
-            Utils.log(logConsole, String.format("Отправление файла %s", filename));
-        }
+        Utils.log(logConsole, String.format("Отправление файла %s", filename));
         try (InputStream fileInputStream = new FileInputStream(file)) {
             out.writeInt(filename.getBytes(StandardCharsets.UTF_8).length);
             out.flush();
@@ -225,13 +225,15 @@ public class Sender extends Thread {
                 end = Instant.now();
                 Utils.log(logConsole, "Файл доставлен до получателя. Время: " +
                         Duration.between(start, end).toMillis() + " мс.");
-                if (checkSumBefore.equals(new String(receiveByteArray(in),
-                        StandardCharsets.UTF_8))) {
-                    Utils.log(logConsole, "Хеш-сумма файлов совпала. Потерь нет.");
-                } else {
-                    Utils.log(
-                            logConsole,
-                            "Хеш-сумма файлов не совпала. Были потери при отправке.");
+                if (encryptionMode != 2) {
+                    if (checkSumBefore.equals(new String(receiveByteArray(in),
+                            StandardCharsets.UTF_8))) {
+                        Utils.log(logConsole, "Хеш-сумма файлов совпала. Потерь нет.");
+                    } else {
+                        Utils.log(
+                                logConsole,
+                                "Хеш-сумма файлов не совпала. Были потери при отправке.");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -349,6 +351,8 @@ public class Sender extends Thread {
                     "Отправитель закончил свою работу и отключился от получателя.");
         } catch (IOException e) {
             Utils.log(logConsole, "Ошибка закрытия соединения. Возможна потеря данных.");
+        } finally {
+            stop = true;
         }
     }
 }
