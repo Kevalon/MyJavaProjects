@@ -10,6 +10,7 @@ import com.ssu.diploma.swing.utils.Utils;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.BindException;
@@ -93,16 +94,22 @@ public class Receiver extends Thread {
     }
 
     private void close() throws IOException {
-        if (out != null) {
-            out.close();
+        try {
+            if (out != null) {
+                out.close();
+                out = null;
+            }
+            if (in != null) {
+                in.close();
+                in = null;
+            }
+            if (clientSocket != null) {
+                clientSocket.close();
+                clientSocket = null;
+            }
+        } catch (SocketException e) {
             out = null;
-        }
-        if (in != null) {
-            in.close();
             in = null;
-        }
-        if (clientSocket != null) {
-            clientSocket.close();
             clientSocket = null;
         }
         if (ss != null) {
@@ -225,7 +232,7 @@ public class Receiver extends Thread {
                     }
                     receiveOneFile(cipher, infinite);
                 }
-            } catch (SocketException exception) {
+            } catch (EOFException | SocketException exception) {
                 break;
             } catch (IOException e) {
                 Utils.log(logConsole, "Не удалось прочитать данные от отправителя.");

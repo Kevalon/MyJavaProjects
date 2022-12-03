@@ -242,12 +242,12 @@ public class Sender extends Thread {
     private void loadTesting(boolean infinite) {
         try {
             List<Path> filesToSend;
-            if (testingMode == 0) {
+            if (testingMode == 2) {
+                filesToSend = Arrays.asList(pathsToEncrypt);
+            } else {
                 filesToSend = Files.walk(Paths.get(settings.get("testFilesDirectory")))
                         .filter(Files::isRegularFile)
                         .collect(Collectors.toList());
-            } else {
-                filesToSend = Arrays.asList(pathsToEncrypt);
             }
 
             Cipher cipher;

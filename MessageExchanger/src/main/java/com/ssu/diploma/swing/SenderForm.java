@@ -63,6 +63,7 @@ public class SenderForm extends JFrame {
         });
 
         startButton.addActionListener(e -> {
+            // 0 - stress, 1 - infinite, 2 - choose files
             int testingMode = IntStream.range(0, testingModes.length)
                     .filter(i -> testingModes[i].equals(modeComboBox.getSelectedItem()))
                     .findFirst()
@@ -137,6 +138,9 @@ public class SenderForm extends JFrame {
                 Utils.log(logConsole, "Отправитель не запущен.");
                 return;
             }
+            Utils.log(
+                    logConsole,
+                    "Остановка отправителя началась. Это может занять некоторое время.");
             senderThread.setStop(true);
         });
 
