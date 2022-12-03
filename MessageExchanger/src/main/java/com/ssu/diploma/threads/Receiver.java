@@ -163,33 +163,47 @@ public class Receiver extends Thread {
             } catch (Exception e) {
                 Utils.log(logConsole, String.format("Ошибка расшифрования файла %s", filename));
             }
-            if (encryptionMode == 1) {
-                try {
-                    Cipher encryptCipher =
-                            encryptor.init(encParameters.getKey(), encParameters.getIV(), true);
-                    for (int i = 0; i < nodesAmount; i++) {
-                        encryptor.encrypt(
-                                settings.get("receivedFilesDirectory") + "/" + filename,
-                                receivePath,
-                                encryptCipher);
-                        encryptor.encrypt(
-                                receivePath,
-                                settings.get("receivedFilesDirectory") + "/" + filename,
-                                cipher);
-                    }
-                } catch (Exception e) {
-                    Utils.log(
-                            logConsole,
-                            "Ошибка симуляция шифрования/расшифрования для канального режима"
-                    );
-                }
-            }
         }
 
-        Utils.sendData(1, out);
         if (!infinite) {
             Utils.log(logConsole, String.format("Получен файл %s", filename));
         }
+        if (encrypt && encryptionMode == 1) {
+            Utils.log(
+                    logConsole,
+                    String.format(
+                            "Эмулирую канальное шифрование для %d промежуточных узлов",
+                            nodesAmount
+                    )
+            );
+            try {
+                Cipher encryptCipher =
+                        encryptor.init(encParameters.getKey(), encParameters.getIV(), true);
+                for (int i = 0; i < nodesAmount * 2; i++) {
+                    if (i < nodesAmount) {
+                        Utils.log(logConsole, String.format("Эмулирую работу %d узла", i + 1));
+                    } else {
+                        Utils.log(
+                                logConsole,
+                                String.format("Эмулирую работу %d узла", nodesAmount * 2 - i));
+                    }
+                    encryptor.encrypt(
+                            settings.get("receivedFilesDirectory") + "/" + filename,
+                            receivePath,
+                            encryptCipher);
+                    encryptor.encrypt(
+                            receivePath,
+                            settings.get("receivedFilesDirectory") + "/" + filename,
+                            cipher);
+                }
+            } catch (Exception e) {
+                Utils.log(
+                        logConsole,
+                        "Ошибка эмуляции шифрования/расшифрования для канального режима."
+                );
+            }
+        }
+        Utils.sendData(1, out);
         Utils.sendData(
                 DigestUtils.sha256Hex(
                         Files.newInputStream(
