@@ -134,7 +134,7 @@ public class SenderSettingsForm extends JFrame {
                         Utils.log(
                                 errorLogConsole,
                                 String.format("Файл ключа имеет некорректную длину. " +
-                                                "Ключ должен быть = %d битам.",
+                                                "Ключ должен быть = %d бит.",
                                         EncryptorImpl.KEY_LENGTH));
                         success = false;
                     } else {
@@ -162,7 +162,7 @@ public class SenderSettingsForm extends JFrame {
                         Utils.log(
                                 errorLogConsole,
                                 String.format("Файл вектора имеет некорректную " +
-                                                "длину. Вектор должен быть = %d битам.",
+                                                "длину. Вектор должен быть = %d бит.",
                                         EncryptorImpl.pIVLen * 8));
                         success = false;
                     } else {
