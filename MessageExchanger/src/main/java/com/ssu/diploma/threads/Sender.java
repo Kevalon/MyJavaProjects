@@ -91,7 +91,7 @@ public class Sender extends Thread {
         } catch (IOException e) {
             Utils.log(
                     logConsole,
-                    "Не удалось подключиться к получателю. Проверь адрес и порт.");
+                    "Не удалось подключиться к получателю. Проверьте адрес и порт.");
             throw e;
         }
 
