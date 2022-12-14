@@ -44,7 +44,7 @@ public class Sender extends Thread {
     private DataInputStream in;
     private final RSA rsaInstance = new RSA();
     private final int testingMode; // 0, 1, 2
-    private final int encryptionMode; // 0, 1, 2
+    private final int encryptionMode; // 0, 1, 2, 3
     private final boolean encrypt;
     private Path[] pathsToEncrypt;
 
@@ -184,10 +184,13 @@ public class Sender extends Thread {
                             logConsole,
                             String.format("Шифрование файла %s", filePath.getFileName()));
                 }
-                encryptor.encrypt(
-                        filePath.toString(),
-                        fileToSendPath.toString(),
-                        cipher);
+                int cnt = encryptionMode == 3 ? 1 : 0;
+                for (int i = 0; i <= cnt; i++) {
+                    encryptor.encrypt(
+                            filePath.toString(),
+                            fileToSendPath.toString(),
+                            cipher);
+                }
             } catch (Exception e) {
                 Utils.log(
                         logConsole,
@@ -316,7 +319,7 @@ public class Sender extends Thread {
             Utils.sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8), out);
             Utils.sendData(testingMode, out);
             Utils.sendData(encryptionMode, out);
-            if (encryptionMode == 1) {
+            if (encryptionMode == 1 || encryptionMode == 3) {
                 Utils.sendData(Integer.parseInt(settings.get("nodesAmount")), out);
             }
 

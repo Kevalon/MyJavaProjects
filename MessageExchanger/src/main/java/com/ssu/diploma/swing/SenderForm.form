@@ -1,34 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.ssu.diploma.swing.SenderForm">
-  <grid id="27dc6" binding="senderPanel" layout-manager="GridLayoutManager" row-count="4" column-count="9" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="senderPanel" layout-manager="GridLayoutManager" row-count="5" column-count="9" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="698" height="400"/>
+      <xy x="20" y="20" width="897" height="400"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
       <component id="351e6" class="javax.swing.JButton" binding="startButton">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Старт"/>
         </properties>
-      </component>
-      <component id="2207b" class="javax.swing.JButton" binding="settingsButton">
-        <constraints>
-          <grid row="1" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Настройки"/>
-        </properties>
-      </component>
-      <component id="3b49b" class="javax.swing.JComboBox" binding="modeComboBox">
-        <constraints>
-          <grid row="0" column="7" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties/>
       </component>
       <component id="5be46" class="javax.swing.JLabel">
         <constraints>
@@ -41,7 +27,7 @@
       </component>
       <scrollpane id="fe179" binding="logConsoleScrollPane">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="9" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="9" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -62,7 +48,7 @@
       </component>
       <component id="aeb2b" class="javax.swing.JButton" binding="stopButton">
         <constraints>
-          <grid row="3" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Стоп"/>
@@ -70,17 +56,9 @@
       </component>
       <hspacer id="4f5bd">
         <constraints>
-          <grid row="3" column="3" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="3" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
-      <component id="47cf6" class="javax.swing.JRadioButton" binding="tunnelingRadio">
-        <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Туннелирование"/>
-        </properties>
-      </component>
       <component id="e2300" class="javax.swing.JRadioButton" binding="linkEncryptionRadio">
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -88,6 +66,36 @@
         <properties>
           <text value="Канальное шифрование"/>
         </properties>
+      </component>
+      <component id="47cf6" class="javax.swing.JRadioButton" binding="tunnelingRadio">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Туннелирование"/>
+        </properties>
+      </component>
+      <component id="3cfc7" class="javax.swing.JRadioButton" binding="mixedEncryptionRadioButton">
+        <constraints>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Комбинированное шифрование"/>
+        </properties>
+      </component>
+      <component id="2207b" class="javax.swing.JButton" binding="settingsButton">
+        <constraints>
+          <grid row="2" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Настройки"/>
+        </properties>
+      </component>
+      <component id="3b49b" class="javax.swing.JComboBox" binding="modeComboBox">
+        <constraints>
+          <grid row="1" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>

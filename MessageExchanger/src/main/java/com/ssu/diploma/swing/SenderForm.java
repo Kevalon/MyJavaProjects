@@ -34,6 +34,7 @@ public class SenderForm extends JFrame {
     private JComboBox modeComboBox;
     private JScrollPane logConsoleScrollPane;
     private JRadioButton linkEncryptionRadio;
+    private JRadioButton mixedEncryptionRadioButton;
 
     private final String[] testingModes =
             {"Нагрузочное тестирование", "Бесконечная отправка", "Выборочная отправка файлов"};
@@ -50,16 +51,25 @@ public class SenderForm extends JFrame {
         tunnelingRadio.addActionListener(e -> {
             linkEncryptionRadio.setSelected(false);
             endToEndRadio.setSelected(false);
+            mixedEncryptionRadioButton.setSelected(false);
         });
 
         linkEncryptionRadio.addActionListener(e -> {
             endToEndRadio.setSelected(false);
             tunnelingRadio.setSelected(false);
+            mixedEncryptionRadioButton.setSelected(false);
         });
 
         endToEndRadio.addActionListener(e -> {
             tunnelingRadio.setSelected(false);
             linkEncryptionRadio.setSelected(false);
+            mixedEncryptionRadioButton.setSelected(false);
+        });
+
+        mixedEncryptionRadioButton.addActionListener(e -> {
+            tunnelingRadio.setSelected(false);
+            linkEncryptionRadio.setSelected(false);
+            endToEndRadio.setSelected(false);
         });
 
         startButton.addActionListener(e -> {
@@ -68,18 +78,20 @@ public class SenderForm extends JFrame {
                     .filter(i -> testingModes[i].equals(modeComboBox.getSelectedItem()))
                     .findFirst()
                     .getAsInt();
-            // 0 - end-to-end, 1 - link, 2 - tunnel
+            // 0 - end-to-end, 1 - link, 2 - tunnel, 3 - mixed
             int encryptionMode;
             if (endToEndRadio.isSelected()) {
                 encryptionMode = 0;
             } else if (linkEncryptionRadio.isSelected()) {
                 encryptionMode = 1;
-            } else {
+            } else if (tunnelingRadio.isSelected()) {
                 encryptionMode = 2;
+            } else {
+                encryptionMode = 3;
             }
             Map<String, String> settings = senderSettingsForm.getSettings();
 
-            if (encryptionMode == 1) {
+            if (encryptionMode == 1 || encryptionMode == 3) {
                 int nodesAmount;
                 boolean repeat = false;
                 String message = "Введите количество промежуточных узлов";
@@ -176,23 +188,12 @@ public class SenderForm extends JFrame {
      */
     private void $$$setupUI$$$() {
         senderPanel = new JPanel();
-        senderPanel.setLayout(new GridLayoutManager(4, 9, new Insets(0, 0, 0, 0), -1, -1));
+        senderPanel.setLayout(new GridLayoutManager(5, 9, new Insets(0, 0, 0, 0), -1, -1));
         startButton = new JButton();
         startButton.setText("Старт");
-        senderPanel.add(startButton, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_WEST,
+        senderPanel.add(startButton, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        settingsButton = new JButton();
-        settingsButton.setText("Настройки");
-        senderPanel.add(settingsButton,
-                new GridConstraints(1, 8, 1, 1, GridConstraints.ANCHOR_CENTER,
-                        GridConstraints.FILL_HORIZONTAL,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        modeComboBox = new JComboBox();
-        senderPanel.add(modeComboBox, new GridConstraints(0, 7, 1, 2, GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setHorizontalAlignment(4);
@@ -202,7 +203,7 @@ public class SenderForm extends JFrame {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         logConsoleScrollPane = new JScrollPane();
         senderPanel.add(logConsoleScrollPane,
-                new GridConstraints(2, 0, 1, 9, GridConstraints.ANCHOR_CENTER,
+                new GridConstraints(3, 0, 1, 9, GridConstraints.ANCHOR_CENTER,
                         GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK |
                         GridConstraints.SIZEPOLICY_WANT_GROW,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK |
@@ -217,20 +218,14 @@ public class SenderForm extends JFrame {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         stopButton = new JButton();
         stopButton.setText("Стоп");
-        senderPanel.add(stopButton, new GridConstraints(3, 8, 1, 1, GridConstraints.ANCHOR_EAST,
+        senderPanel.add(stopButton, new GridConstraints(4, 8, 1, 1, GridConstraints.ANCHOR_EAST,
                 GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        senderPanel.add(spacer1, new GridConstraints(3, 3, 1, 3, GridConstraints.ANCHOR_CENTER,
+        senderPanel.add(spacer1, new GridConstraints(4, 3, 1, 3, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null,
                 null, null, 0, false));
-        tunnelingRadio = new JRadioButton();
-        tunnelingRadio.setText("Туннелирование");
-        senderPanel.add(tunnelingRadio, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST,
-                GridConstraints.FILL_NONE,
-                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         linkEncryptionRadio = new JRadioButton();
         linkEncryptionRadio.setText("Канальное шифрование");
         senderPanel.add(linkEncryptionRadio,
@@ -238,6 +233,30 @@ public class SenderForm extends JFrame {
                         GridConstraints.FILL_NONE,
                         GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                         GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        tunnelingRadio = new JRadioButton();
+        tunnelingRadio.setText("Туннелирование");
+        senderPanel.add(tunnelingRadio, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        mixedEncryptionRadioButton = new JRadioButton();
+        mixedEncryptionRadioButton.setText("Комбинированное шифрование");
+        senderPanel.add(mixedEncryptionRadioButton,
+                new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST,
+                        GridConstraints.FILL_NONE,
+                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        settingsButton = new JButton();
+        settingsButton.setText("Настройки");
+        senderPanel.add(settingsButton,
+                new GridConstraints(2, 8, 1, 1, GridConstraints.ANCHOR_CENTER,
+                        GridConstraints.FILL_HORIZONTAL,
+                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                        GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        modeComboBox = new JComboBox();
+        senderPanel.add(modeComboBox, new GridConstraints(1, 8, 1, 1, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

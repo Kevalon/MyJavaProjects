@@ -37,7 +37,7 @@ public class Receiver extends Thread {
     private final JTextArea logConsole;
     private final RSA rsaInstance = new RSA();
     private int testingMode; // 0, 1, 2
-    private int encryptionMode; // 0, 1, 2
+    private int encryptionMode; // 0, 1, 2, 3
     private int nodesAmount;
     public ServerSocket ss;
     private Socket clientSocket;
@@ -158,17 +158,20 @@ public class Receiver extends Thread {
 
         if (encrypt) {
             try {
-                encryptor.encrypt(
-                        receivePath,
-                        settings.get("receivedFilesDirectory") + "/" + filename,
-                        cipher);
+                int cnt = encryptionMode == 3 ? 1 : 0;
+                for (int i = 0; i <= cnt; i++) {
+                    encryptor.encrypt(
+                            receivePath,
+                            settings.get("receivedFilesDirectory") + "/" + filename,
+                            cipher);
+                }
             } catch (Exception e) {
                 Utils.log(logConsole, String.format("Ошибка расшифрования файла %s", filename));
             }
         }
 
         Utils.log(logConsole, String.format("Получен файл %s", filename));
-        if (encrypt && encryptionMode == 1) {
+        if (encrypt && (encryptionMode == 1 || encryptionMode == 3)) {
             Utils.log(
                     logConsole,
                     String.format(
@@ -301,7 +304,7 @@ public class Receiver extends Thread {
                 encryptionMode = in.readInt();
                 encrypt = encryptionMode != 2;
                 if (encrypt) {
-                    if (encryptionMode == 1) {
+                    if (encryptionMode == 1 || encryptionMode == 3) {
                         nodesAmount = in.readInt();
                     }
                     Utils.sendData(Utils.getBytesFromURL(RSA.PUBLIC_KEY_PATH), out);
