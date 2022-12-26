@@ -29,6 +29,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import lombok.Getter;
 
+// Интерфейс окна настроек отправителя
 public class SenderSettingsForm extends JFrame {
     private JPanel settingsPanel;
     private JTextField receiverAddressTextField;
@@ -56,6 +57,7 @@ public class SenderSettingsForm extends JFrame {
     public SenderSettingsForm() {
         cipherSystemComboBox.setModel(new DefaultComboBoxModel(SUPPORTED_CIPHERS));
 
+        // Установка настроек по умолчанию
         settings.put("receiverAddress", "localhost");
         settings.put("receiverPort", "8081");
         settings.put("cipherSystem", "AES");
@@ -74,6 +76,7 @@ public class SenderSettingsForm extends JFrame {
         choosePathButton4.addActionListener(e ->
                 Utils.browseFileAction(IVPathTextField, this));
 
+        // Генерация нового ключа шифрования
         generateNewKeyButton.addActionListener(e -> {
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
@@ -96,6 +99,7 @@ public class SenderSettingsForm extends JFrame {
             }
         });
 
+        // Генерация нового начального вектора
         generateNewIVButton.addActionListener(e -> {
             EncryptorImpl encryptor
                     = new EncryptorImpl((String) cipherSystemComboBox.getSelectedItem());
@@ -121,6 +125,7 @@ public class SenderSettingsForm extends JFrame {
             settings.put("testFilesDirectory", testFilesDirectoryTextField.getText());
             settings.put("cipherSystem", (String) cipherSystemComboBox.getSelectedItem());
 
+            // Проверка правильности настроек
             if (!keyPathTextField.getText().equals("")) {
                 try {
                     long size;

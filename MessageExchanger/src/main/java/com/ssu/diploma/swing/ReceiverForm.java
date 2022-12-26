@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+// Интерфейс окна получателя
 public class ReceiverForm extends JFrame {
     private JPanel receiverPanel;
     private JButton startButton;
@@ -29,6 +30,7 @@ public class ReceiverForm extends JFrame {
     public ReceiverForm() {
         this.add(receiverPanel);
 
+        // Запуск получателя
         startButton.addActionListener(e -> {
             String test = receiverSettingsForm.getSettings().get("receivedFilesDirectory");
             if (test == null || test.equals("")) {
@@ -45,6 +47,7 @@ public class ReceiverForm extends JFrame {
             receiverSettingsForm.init();
         });
 
+        // Остановка получателя
         stopButton.addActionListener(e -> {
             if (receiverThread == null || receiverThread.isStop()) {
                 Utils.log(logConsole, "Получатель не запущен.");

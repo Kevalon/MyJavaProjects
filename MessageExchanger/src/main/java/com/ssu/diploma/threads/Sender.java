@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
+// Класс, реализующий логику отправителя
 public class Sender extends Thread {
     private final Map<String, String> settings;
     private final Encryptor encryptor;
@@ -81,6 +82,7 @@ public class Sender extends Thread {
         this.pathsToEncrypt = pathsToEncrypt;
     }
 
+    // Инициализация потоков ввода-вывода
     private void init() throws IOException {
         try {
             clientSocket = new Socket(
@@ -108,6 +110,7 @@ public class Sender extends Thread {
         }
     }
 
+    // Закрытие потоков ввода-вывода при завершении работы
     private void close() throws IOException {
         if (out != null) {
             out.close();
@@ -123,6 +126,7 @@ public class Sender extends Thread {
         }
     }
 
+    // Получение конфигурации параметров шифрования
     private EncryptionParametersDto getDto() throws IOException {
         byte[] key;
         byte[] IV;
@@ -153,6 +157,7 @@ public class Sender extends Thread {
                 .build();
     }
 
+    // Метод зашифрования и отправки файлов
     private void encryptAndSend(Path filePath, Cipher cipher, boolean infinite) {
         if (stop) {
             return;
@@ -161,6 +166,7 @@ public class Sender extends Thread {
         String checkSumBefore;
         Path fileToSendPath = filePath;
 
+        // Подсчет хеш-суммы файла
         try (InputStream is = Files.newInputStream(filePath)) {
             checkSumBefore = DigestUtils.sha256Hex(is);
         } catch (IOException e) {
@@ -174,6 +180,7 @@ public class Sender extends Thread {
             return;
         }
 
+        // Зашифрование файла
         if (encrypt) {
             start = Instant.now();
             fileToSendPath =
@@ -201,6 +208,7 @@ public class Sender extends Thread {
             start = Instant.now();
         }
 
+        // Отправка файла
         File file = fileToSendPath.toFile();
         String filename = filePath.getFileName().toString();
         Utils.log(logConsole, String.format("Отправление файла %s", filename));
@@ -222,6 +230,7 @@ public class Sender extends Thread {
             exception.printStackTrace();
         }
 
+        // Проверка хеш-суммы
         if (!infinite) {
             try {
                 in.readInt();
@@ -244,6 +253,7 @@ public class Sender extends Thread {
         }
     }
 
+    // Метод нагрузочного тестирования
     private void loadTesting(boolean infinite) {
         try {
             List<Path> filesToSend;
@@ -255,6 +265,7 @@ public class Sender extends Thread {
                         .collect(Collectors.toList());
             }
 
+            // Настройка параметров шифрования
             Cipher cipher;
             if (encrypt) {
                 cipher = encryptor.init(
@@ -266,6 +277,7 @@ public class Sender extends Thread {
                 cipher = null;
             }
 
+            // Отправка файлов
             do {
                 if (stop) {
                     break;
@@ -296,11 +308,13 @@ public class Sender extends Thread {
         }
     }
 
+    // Метод бесконечной отправки
     private void infiniteTexting() {
         Utils.log(logConsole, "Бесконечная отправка началась. Для отмены нажмите 'Стоп'.");
         loadTesting(true);
     }
 
+    // Запуск потока отправителя
     @Override
     public void run() {
         try {
@@ -316,6 +330,7 @@ public class Sender extends Thread {
         }
 
         try {
+            // Отправление конфигурации работы
             Utils.sendData("ENC_PAR".getBytes(StandardCharsets.UTF_8), out);
             Utils.sendData(testingMode, out);
             Utils.sendData(encryptionMode, out);
@@ -341,6 +356,7 @@ public class Sender extends Thread {
                     "Не удалось зашифровать данные с помощью RSA для отправки.");
         }
 
+        // Запуск соответствующего режима работы
         if (testingMode == 0 || testingMode == 2) {
             loadTesting(false);
         }

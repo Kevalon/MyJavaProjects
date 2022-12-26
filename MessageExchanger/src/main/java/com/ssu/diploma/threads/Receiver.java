@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.codec.digest.DigestUtils;
 
+// Класс, реализующий логику получателя
 public class Receiver extends Thread {
 
     private final Map<String, String> settings;
@@ -54,6 +55,7 @@ public class Receiver extends Thread {
         this.logConsole = logConsole;
     }
 
+    // Инициализация потоков ввода-вывода
     private void init() throws IOException {
         try {
             ss = new ServerSocket(Integer.parseInt(settings.get("serverPort")));
@@ -95,6 +97,7 @@ public class Receiver extends Thread {
         }
     }
 
+    // Закрытие потоков ввода-вывода при завершении работы
     private void close() throws IOException {
         try {
             if (out != null) {
@@ -120,6 +123,7 @@ public class Receiver extends Thread {
         }
     }
 
+    // Установка конфигурации шифрования
     private EncryptionParametersDto setUpEncParameters()
             throws IOException, GeneralSecurityException {
         try {
@@ -141,6 +145,7 @@ public class Receiver extends Thread {
         }
     }
 
+    // Метод получения файлов от отправителя
     private void receiveOneFile(Cipher cipher, boolean infinite) throws IOException {
         String filename = new String(Utils.receiveByteArray(in), StandardCharsets.UTF_8);
         String receivePath = encrypt ? "./encryptedReceived/" + filename + ".enc" :
@@ -156,6 +161,7 @@ public class Receiver extends Thread {
             }
         }
 
+        // Расшифрование файла
         if (encrypt) {
             try {
                 int cnt = encryptionMode == 3 ? 1 : 0;
@@ -171,6 +177,7 @@ public class Receiver extends Thread {
         }
 
         Utils.log(logConsole, String.format("Получен файл %s", filename));
+        // Эмуляция канального шифрования
         if (encrypt && (encryptionMode == 1 || encryptionMode == 3)) {
             Utils.log(
                     logConsole,
@@ -206,6 +213,7 @@ public class Receiver extends Thread {
                 );
             }
         }
+        // Отправление подтверждения получения и хеш-суммы файла
         Utils.sendData(1, out);
         if (encryptionMode != 2) {
             Utils.sendData(
@@ -221,6 +229,7 @@ public class Receiver extends Thread {
         }
     }
 
+    // Метод нагрузочного тестирования
     private void loadTesting(boolean infinite) throws IOException {
         if (testingMode != 2 && !settings.containsKey("receivedFilesDirectory")) {
             Utils.log(logConsole, "Не найдена директория для получаемых файлов. " +
@@ -229,6 +238,7 @@ public class Receiver extends Thread {
         }
 
         Cipher cipher;
+        // Настройка параметров шифрования
         if (encrypt) {
             try {
                 cipher = encryptor.init(
@@ -244,6 +254,7 @@ public class Receiver extends Thread {
         }
         do {
             try {
+                // Получение файлов от отправителя
                 int fileCount = in.readInt();
                 for (int i = 0; i < fileCount; i++) {
                     if (stop) {
@@ -272,11 +283,13 @@ public class Receiver extends Thread {
         }
     }
 
+    // Метод бесконечной отправки
     private void infiniteTexting() throws IOException {
         Utils.log(logConsole, "Установлен режим бесконечного обмена сообщениями.");
         loadTesting(true);
     }
 
+    // Запуск потока отправителя
     @Override
     public void run() {
         while (!stop) {
@@ -296,6 +309,7 @@ public class Receiver extends Thread {
             }
 
             try {
+                // Получение конфигурации обмена данными
                 byte[] encData = Utils.receiveByteArray(in);
                 if (!(new String(encData, StandardCharsets.UTF_8).equals("ENC_PAR"))) {
                     throw new IOException();
@@ -322,6 +336,7 @@ public class Receiver extends Thread {
                 return;
             }
 
+            // Запуск соответствующего режима работы
             try {
                 if (testingMode == 0 || testingMode == 2) {
                     loadTesting(false);

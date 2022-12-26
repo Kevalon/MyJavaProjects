@@ -39,6 +39,7 @@ public class RSA {
 //        Files.write(PUBLIC_KEY_PATH, pair.getPublic().getEncoded());
     }
 
+    // Метод зашифрования данных
     public byte[] encrypt(byte[] data, byte[] key)
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException,
@@ -60,6 +61,7 @@ public class RSA {
         } else return cipher.doFinal(data);
     }
 
+    // Метод расшифрования данных
     public byte[] decrypt(byte[] data)
             throws NoSuchPaddingException, NoSuchAlgorithmException, IOException,
             InvalidKeySpecException, InvalidKeyException, IllegalBlockSizeException,

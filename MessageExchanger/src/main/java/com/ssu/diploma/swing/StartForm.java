@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+// Интерфейс стартового окна выбора режима работы программы
 public class StartForm extends JFrame {
     private JButton senderButton;
     private JButton receiverButton;

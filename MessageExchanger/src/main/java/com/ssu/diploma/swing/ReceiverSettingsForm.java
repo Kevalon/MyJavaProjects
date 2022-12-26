@@ -20,6 +20,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import lombok.Getter;
 
+// Интерфейс окна настроек получателя
 public class ReceiverSettingsForm extends JFrame {
     private JPanel receiverSettingsPanel;
     private JTextArea errorLogConsole;
@@ -34,6 +35,7 @@ public class ReceiverSettingsForm extends JFrame {
 
     public ReceiverSettingsForm() {
 
+        // Установка настроек по умолчанию
         settings.put("serverPort", "8081");
         if (Files.exists(Paths.get("C:\\Users\\vbifu\\OneDrive\\Документы\\receive"))) {
             settings.put("receivedFilesDirectory", "C:\\Users\\vbifu\\OneDrive\\Документы\\receive");
@@ -48,6 +50,7 @@ public class ReceiverSettingsForm extends JFrame {
         applyButton.addActionListener(e -> {
             settings.put("serverPort", receiverPortTextField.getText());
 
+            // Проверка правильности настроек
             if (!receivedFilesDirectoryTextField.getText().equals("")) {
                 if (Files.isDirectory(Paths.get(receivedFilesDirectoryTextField.getText()))) {
                     settings.put("receivedFilesDirectory",

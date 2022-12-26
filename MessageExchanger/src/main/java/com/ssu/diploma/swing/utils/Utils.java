@@ -17,9 +17,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.apache.commons.io.IOUtils;
 
+// Класс со вспомогательными функциями
 public class Utils {
     public static final int RESOURCE_BUFFER_SIZE = 1024 * 1024;
 
+    // Функция для выбора директории с помощью интерфейса программы
     public static synchronized int browseDirAction(JTextField destination, JFrame frame) {
         JFileChooser dirFileChooser = new JFileChooser();
         dirFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -38,6 +40,7 @@ public class Utils {
         return res;
     }
 
+    // Функция для выбора файла с помощью интерфейса программы
     public static synchronized void browseFileAction(JTextField destination, JFrame frame) {
         JFileChooser fileFileChooser = new JFileChooser();
         fileFileChooser.setDialogTitle("Выбор файла");
@@ -53,6 +56,7 @@ public class Utils {
         }
     }
 
+    // Функция для выбора нескольких файлов из проводника через интерфейс программы
     public static synchronized Path[] browseSeveralFiles(JFrame frame) {
         JFileChooser fileFileChooser = new JFileChooser();
         fileFileChooser.setDialogTitle("Выберите файлы для отправки");
@@ -76,6 +80,7 @@ public class Utils {
         }
     }
 
+    // Конвертер URL в массив байтов
     public static synchronized byte[] getBytesFromURL(URL resource) {
         try (InputStream in = resource.openStream()) {
             return IOUtils.toByteArray(in);
@@ -85,6 +90,7 @@ public class Utils {
         }
     }
 
+    // Функция логгирования
     public static void log(JTextArea logConsole, String message) {
         logConsole.append(String.format(
                 "%s%s\n",
@@ -93,6 +99,7 @@ public class Utils {
         ));
     }
 
+    // Метод для получения массива байтов из потока ввода-вывода
     public static byte[] receiveByteArray(DataInputStream in) throws IOException {
         int length = in.readInt();
         if (length > 0) {
@@ -103,6 +110,7 @@ public class Utils {
         throw new IOException();
     }
 
+    // Отправка данных в поток ввода-вывода
     public static void sendData(Object data, DataOutputStream out) throws IOException {
         if (data instanceof byte[]) {
             byte[] newData = (byte[]) data;

@@ -23,6 +23,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+// Интерфейс окна отправителя
 public class SenderForm extends JFrame {
     private JPanel senderPanel;
     private JTextArea logConsole;
@@ -72,6 +73,7 @@ public class SenderForm extends JFrame {
             endToEndRadio.setSelected(false);
         });
 
+        // Запуск отправителя
         startButton.addActionListener(e -> {
             // 0 - stress, 1 - infinite, 2 - choose files
             int testingMode = IntStream.range(0, testingModes.length)
@@ -145,6 +147,7 @@ public class SenderForm extends JFrame {
             senderThread.start();
         });
 
+        // Остановка отправителя
         stopButton.addActionListener(e -> {
             if (senderThread == null || senderThread.isStop()) {
                 Utils.log(logConsole, "Отправитель не запущен.");

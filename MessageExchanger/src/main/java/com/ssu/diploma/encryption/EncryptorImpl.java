@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.bouncycastle.crypto.CryptoServicesRegistrar;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+// Класс, реализующий логику шифрования
 @Getter
 public class EncryptorImpl implements Encryptor {
 
@@ -33,6 +34,7 @@ public class EncryptorImpl implements Encryptor {
     public static final byte pIVLen = 16;
 
     static {
+        // Добавление криптопровайдера BouncyCastle
         Security.setProperty("crypto.policy", "unlimited");
         Security.addProvider(new BouncyCastleProvider());
     }
@@ -57,6 +59,7 @@ public class EncryptorImpl implements Encryptor {
         return IV;
     }
 
+    // Инициализация шифрсистемы по заданным параметрам
     @Override
     public Cipher init(String keyPath, String IVPath, boolean encrypt) throws Exception {
         Cipher cipher = Cipher.getInstance(systemName, "BC");
@@ -93,6 +96,7 @@ public class EncryptorImpl implements Encryptor {
         return cipher;
     }
 
+    // Метод зашифрования/расшифрования
     @Override
     public void encrypt(String source, String destination, Cipher cipher)
             throws IllegalBlockSizeException, BadPaddingException, IOException {
