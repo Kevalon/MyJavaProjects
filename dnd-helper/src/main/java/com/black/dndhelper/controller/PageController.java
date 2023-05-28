@@ -69,6 +69,8 @@ public class PageController {
         catch (NotFoundException e) {
             e.printStackTrace();
         }
+        currentPeriod = new PeriodDto(locations.get(currentLocationId).getWeather().get(0).getDay(), 1);
+
         Location location = locations.get(currentLocationId);
         locationChangeDto.setFoodDC(location.getFoodDC());
         locationChangeDto.setNavDC(location.getNavigationDC());
@@ -76,6 +78,7 @@ public class PageController {
         locationChangeDto.setRandomEncounterChance(location.getRandomEncChance());
         locationChangeDto.setWaterDC(location.getWaterDC());
         locationChangeDto.setWeatherDayList(location.getWeather());
+        locationChangeDto.setCurDayAndWatch(currentPeriod.getFullPeriod());
         return locationChangeDto;
     }
 }

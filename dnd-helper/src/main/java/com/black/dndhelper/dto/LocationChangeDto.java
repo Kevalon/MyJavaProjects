@@ -13,4 +13,5 @@ public class LocationChangeDto {
     private String foodDC;
     private String plantsDC;
     private String navDC;
+    private String curDayAndWatch;
 }
