@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Form</title>
+    <style>
+        /* Add some basic styling */
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        h1 {
+            font-size: 36px;
+            margin-top: 0;
+            font-weight: normal;
+        }
+        h2 {
+            font-size: 24px;
+            margin-top: 0;
+            font-weight: normal;
+        }
+        .button {
+            background-color: #6a47c2;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #c24760;
+            color: white;
+        }
+        body {
+            font-size: 18px;
+        }
+    </style>
+    <script src="/webjars/jquery/3.6.4/jquery.min.js"></script>
+</head>
+<body>
+<header>
+    <h1>dnd-helper v1.0</h1>
+</header>
+<main>
+
+    <h2 style="font-size: 1.5em;">Current day and watch: <span th:text="${curDayAndWatch}" id="curDayAndWatch" style="font-weight: bold"></span></h2>
+
+    <button type="button" class="button" onclick="changePeriod(false)">Previous watch</button>
+    <button type="button" class="button" onclick="changePeriod(true)">Next watch</button>
+
+    <div style="display: flex; flex-wrap: wrap; justify-content: flex-start; margin-top: 20px;">
+        <div style="height: 30px; flex-basis: 100%;">
+            <label for="navDC">Navigation DC: <span id="navDC" th:text="${navDC}"></span></label>
+        </div>
+
+        <div style="height: 30px; flex-basis: 100%;">
+            <label for="plantsDC">Plants DC: <span id="plantsDC" th:text="${plantsDC}"></span></label>
+        </div>
+
+        <div style="height: 30px; flex-basis: 100%;">
+            <label for="foodDC">Food DC: <span id="foodDC" th:text="${foodDC}"></span></label>
+        </div>
+
+        <div style="height: 30px; flex-basis: 100%;">
+            <label for="waterDC">Water DC: <span id="waterDC" th:text="${waterDC}"></span></label>
+        </div>
+
+        <div style="height: 30px; flex-basis: 100%;">
+            <h3 style="font-weight: normal;">Random Encounter Chance: <span id="randomEncounterChance" th:text="${randomEncounterChance}"></span></h3>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+        <label for="location">Location:</label>
+        <select id="location" name="location" onchange="changeLocation(this.value)" th:field="*{curLocationName}" style="width: 600px; font-size: 18px;">
+            <option value="" style="font-size: 18px;" selected>Select a location</option>
+            <option th:each="locationName : ${locationNames}" th:value="${locationName}" th:text="${locationName}"></option>
+        </select>
+        <table style="display: inline-block; margin-right: 20px;">
+            <tr>
+                <th>Day</th>
+                <th>Temperature</th>
+                <th>Precipitation</th>
+                <th>Wind</th>
+                <th>Sky</th>
+            </tr>
+            <tbody id="weatherDayList">
+            <!-- Table initially empty -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function changePeriod(value) {
+            $.ajax({
+                url: "/changePeriod?next=" + value,
+                type: "GET",
+                success: function(response) {
+                    $('#curDayAndWatch').text(response);
+                },
+                error: function(error) {
+                    console.log("Error:", error);
+                }
+            });
+        }
+    </script>
+
+    <script>
+        function changeLocation(value) {
+            $.ajax({
+                url: "/changeLocation?newLocationName=" + value,
+                type: "GET",
+                success: function(response) {
+                    // Get a reference to the tbody element
+                    var old_tbody = document.getElementById('weatherDayList');
+
+                    if (old_tbody) {
+                        // Create a new tbody element and populate it with new rows
+                        var new_tbody = document.createElement('tbody');
+                        new_tbody.setAttribute('id', 'weatherDayList');
+                        if (response.weatherDayList && response.weatherDayList.length > 0) {
+                            $.each(response.weatherDayList, function(index, day) {
+                                new_tbody.innerHTML +=
+                                    "<tr>" +
+                                    "<td>" + day.day + "</td>" +
+                                    "<td>" + day.temperature + "</td>" +
+                                    "<td>" + day.precipitation + "</td>" +
+                                    "<td>" + day.wind + "</td>" +
+                                    "<td>" + day.sky + "</td>" +
+                                    "</tr>";
+                            });
+                        } else {
+                            // If there is no data, display a message in the new tbody
+                            new_tbody.innerHTML = "<tr><td colspan='5'>No data available</td></tr>";
+                        }
+
+                        // Replace the old tbody element with the new one
+                        if (old_tbody.parentNode) {
+                            old_tbody.parentNode.replaceChild(new_tbody, old_tbody);
+                        }
+                    } else {
+                        console.log("Could not find tbody element");
+                    }
+
+                    $('#randomEncounterChance').text(response.randomEncounterChance);
+                    $('#waterDC').text(response.waterDC);
+                    $('#foodDC').text(response.foodDC);
+                    $('#plantsDC').text(response.plantsDC);
+                    $('#navDC').text(response.navDC);
+                },
+                error: function(error) {
+                    console.log("Error:", error);
+                }
+            });
+        }
+    </script>
+</main>
