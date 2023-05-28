@@ -49,7 +49,6 @@ public class PageController {
         return "mainPage";
     }
 
-    // todo: v2. Будет вывод конкретной погоды под текущий период.
     @GetMapping("/changePeriod")
     @ResponseBody
     public String changePeriod(@RequestParam("next") boolean next) {
